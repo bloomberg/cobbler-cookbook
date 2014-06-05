@@ -16,7 +16,7 @@ Installs and configures [Cobbler][1].
     <th>Default</th>
   </tr>
   <tr>
-    <td><tt>['cobbler-cookbook']['bacon']</tt></td>
+    <td><tt>['cobbler']['bacon']</tt></td>
     <td>Boolean</td>
     <td>whether to include bacon</td>
     <td><tt>true</tt></td>
@@ -25,18 +25,22 @@ Installs and configures [Cobbler][1].
 
 ## Usage
 
-### cobbler-cookbook::default
+### cobbler::default
 
-Include `cobbler-cookbook` in your node's `run_list`:
+Include `cobbler` in your node's `run_list`:
 
 ```json
 {
   "run_list": [
-    "recipe[cobbler-cookbook::default]"
+    "recipe[cobbler::default]"
   ]
 }
 ```
 
-## License and Authors
+## Maintainers
 
-Author:: John Bellone (<jbellone@bloomberg.net>) (<jbellone@bloomberg.net>)
+Author:: [John Bellone][2] [@johnbellone][3] (<jbellone@bloomberg.net>)
+
+[1]: http://www.cobblerd.org
+[2]: https://github.com/johnbellone
+[3]: https://twitter.com/johnbellone

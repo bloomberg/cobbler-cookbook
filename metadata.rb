@@ -8,7 +8,12 @@ version          '0.1.0'
 
 %w(centos redhat).each do |name|
   supports name, '~> 6.5'
+  supports name, '~> 5.8'
 end
 
 supports 'ubuntu', '= 12.04'
 supports 'ubuntu', '= 14.04'
+
+depends 'apt'
+depends 'chef-sugar'
+depends 'yum-epel'
