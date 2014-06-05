@@ -24,3 +24,5 @@ suites:
   - name: web
     run_list:
       - 'recipe[cobbler::web]'
+    excludes:
+      - centos-5.10
