@@ -21,3 +21,6 @@ suites:
   - name: default
     run_list:
       - 'recipe[cobbler::default]'
+  - name: web
+    run_list:
+      - 'recipe[cobbler::web]'
