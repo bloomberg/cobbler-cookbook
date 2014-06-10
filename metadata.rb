@@ -9,6 +9,7 @@ version          '0.1.0'
 %w(centos redhat).each do |name|
   supports name, '~> 6.5'
   supports name, '~> 5.8'
+  supports name, '~> 7.0'
 end
 
 supports 'ubuntu', '= 12.04'
