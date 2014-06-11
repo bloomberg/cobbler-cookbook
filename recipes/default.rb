@@ -8,5 +8,6 @@
 include_recipe 'chef-sugar::default'
 
 include_recipe 'yum-epel::default' if rhel?
+include_recipe 'apt::default' if debian?
 
 package 'cobbler'
