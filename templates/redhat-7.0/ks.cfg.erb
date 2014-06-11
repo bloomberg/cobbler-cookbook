@@ -7,7 +7,7 @@ cdrom
 lang en_US.UTF-8
 keyboard us
 network --bootproto=dhcp
-rootpw vagrant
+rootpw <%= @root_password %>
 firewall --disabled
 selinux --permissive
 timezone UTC
@@ -18,13 +18,15 @@ skipx
 zerombr
 clearpart --all --initlabel
 autopart
-auth --enableshadow --passalgo=sha512 --kickstart
+auth --enableshadow --passalgo=sha512
 firstboot --disabled
 reboot
-user --name=vagrant --plaintext --password vagrant
+
+<% if @user %>
+user --name=<%= @user[:name] %> --password <%= @user[:password] %>
+<% end %>
 
 %packages --nobase --ignoremissing --excludedocs
-# vagrant needs this to copy initial files via scp
 openssh-clients
 sudo
 kernel-headers
@@ -69,9 +71,5 @@ bzip2
 %end
 
 %post
-# update root certs
 wget -O/etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
-# sudo
-echo "%vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/vagrant
-sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 %end
