@@ -20,15 +20,12 @@ d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
 d-i partman/confirm_write_new_label boolean true
-
-<% if @root_password %>
 d-i passwd/root-login boolean true
 d-i passwd/root-password-crypted password <%= @root_password %>
-<% end %>
 
 <% if @user %>
 d-i passwd/make-user boolean true
-d-i passwd/user-fullname string <%= @user[:fullname] %>
+d-i passwd/user-fullname string <%= @user[:name] %>
 d-i passwd/user-uid string <%= @user[:uid] %>
 d-i passwd/user-password-crypted password <%= @user[:password] %>
 d-i passwd/username string <%= @user[:name] %>
@@ -39,6 +36,6 @@ d-i pkgsel/install-language-support boolean false
 d-i pkgsel/update-policy select unattended-upgrades
 d-i pkgsel/upgrade select full-upgrade
 d-i time/zone string UTC
-d-i user-setup/allow-password-weak boolean false
+d-i user-setup/allow-password-weak boolean true
 d-i user-setup/encrypt-home boolean false
 tasksel tasksel/first multiselect standard, ubuntu-server

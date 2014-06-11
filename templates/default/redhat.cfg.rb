@@ -11,41 +11,37 @@ rootpw <%= @root_password %>
 firewall --disabled
 selinux --permissive
 timezone UTC
+unsupported_hardware
 bootloader --location=mbr
 text
 skipx
 zerombr
 clearpart --all --initlabel
 autopart
-auth  --useshadow  --passalgo=sha512
+auth --enableshadow --passalgo=sha512
 firstboot --disabled
 reboot
 
 <% if @user %>
-user --name=<%= @user[:name] %> --password <%= @user[:password] %>
+user --name=<%= @user[:name] %> --iscrypted --password <%= @user[:password] %> --uid <%= @user[:uid] %>
 <% end %>
 
 %packages --nobase --ignoremissing --excludedocs
-openssh-clients
 openssh-server
-bzip2
-curl
-dhclient
-gcc
-kernel-devel
-kernel-headers
-make
-nfs-utils
-perl
+openssh-clients
 sudo
+kernel-headers
+kernel-devel
+gcc
+make
+perl
+curl
 wget
-yum
+nfs-utils
+bzip2
 -fprintd-pam
 -intltool
--avahi
--bluez-utils
--dogtail
--kudzu
+
 # unnecessary firmware
 -aic94xx-firmware
 -atmel-firmware
@@ -73,6 +69,7 @@ yum
 -rt73usb-firmware
 -xorg-x11-drv-ati-firmware
 -zd1211-firmware
+%end
 
 %post
 wget -O/etc/pki/tls/certs/ca-bundle.crt http://curl.haxx.se/ca/cacert.pem
