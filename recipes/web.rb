@@ -1,11 +1,11 @@
 #
-# Cookbook Name:: cobbler
+# Cookbook Name:: cobblerd
 # Recipe:: web
 #
 # Copyright (C) 2014 Bloomberg Finance L.P.
 #
 
-include_recipe 'cobbler::default'
+include_recipe 'cobblerd::default'
 
 if rhel?
   return unless node[:platform_version].to_f > 5

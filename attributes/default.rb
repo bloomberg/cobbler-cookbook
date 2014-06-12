@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: cobbler
+# Cookbook Name:: cobblerd
 # Attribute:: default
 #
 # Copyright (C) 2014 Bloomberg Finance L.P.
