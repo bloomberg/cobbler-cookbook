@@ -1,9 +1,9 @@
 cobbler-cookbook
 ================
-Installs and configures [Cobbler][1].
+Installs and configures [Cobbler][1] and Cobbler Web.
 
 ## Supported Platforms
-- CentOS 6.5
+- CentOS 6.5, 5.10
 - Ubuntu 12.04, 14.04
 
 ## Attributes
@@ -27,12 +27,12 @@ Installs and configures [Cobbler][1].
 
 ### cobbler::default
 
-Include `cobbler` in your node's `run_list`:
+Include `cobblerd` in your node's `run_list`:
 
 ```json
 {
   "run_list": [
-    "recipe[cobbler::default]"
+    "recipe[cobblerd::default]"
   ]
 }
 ```
