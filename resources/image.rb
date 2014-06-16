@@ -4,9 +4,13 @@
 #
 # Copyright (C) 2014 Bloomberg Finance L.P.
 #
-actions :add, :remove
-default_action :add
+actions :import
+default_action :import
 
 attribute :name, kind_of: String, name_attribute: true
-attribute :source, kind_of: String, default: nil
-attribute :checksum, kind_of: String, default: nil
+attribute :arch, kind_of: String
+attribute :breed, kind_of: String
+attribute :source, kind_of: String
+attribute :checksum, kind_of: String
+attribute :os_version, kind_of: String
+attribute :kickstart, kind_of: String
