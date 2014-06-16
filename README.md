@@ -16,10 +16,28 @@ Installs and configures [Cobbler][1] and Cobbler Web.
     <th>Default</th>
   </tr>
   <tr>
-    <td><tt>['cobbler']['bacon']</tt></td>
-    <td>Boolean</td>
-    <td>whether to include bacon</td>
-    <td><tt>true</tt></td>
+    <td><tt>['cobbler']['root_password']</tt></td>
+    <td>String</td>
+    <td>Root password for Kickstart templates.</td>
+    <td><tt>`echo 'root' | shasum -a 512 -p`</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['cobbler']['user']['password']</tt></td>
+    <td>String</td>
+    <td>Root password for Kickstart templates.</td>
+    <td><tt>`echo 'cloud' | shasum -a 512 -p`</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['cobbler']['user']['name']</tt></td>
+    <td>String</td>
+    <td>UNIX username</td>
+    <td><tt>cloud</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['cobbler']['user']['uid']</tt></td>
+    <td>Integer</td>
+    <td>UNIX uid</td>
+    <td><tt>900</tt></td>
   </tr>
 </table>
 
@@ -33,6 +51,42 @@ Include `cobblerd` in your node's `run_list`:
 {
   "run_list": [
     "recipe[cobblerd::default]"
+  ]
+}
+```
+
+### cobbler::web
+
+Include `cobblerd` in your node's `run_list`:
+
+```json
+{
+  "run_list": [
+    "recipe[cobblerd::web]"
+  ]
+}
+```
+
+### cobbler::centos
+
+Include `cobblerd` in your node's `run_list`:
+
+```json
+{
+  "run_list": [
+    "recipe[cobblerd::centos]"
+  ]
+}
+```
+
+### cobbler::ubuntu
+
+Include `cobblerd` in your node's `run_list`:
+
+```json
+{
+  "run_list": [
+    "recipe[cobblerd::ubuntu]"
   ]
 }
 ```

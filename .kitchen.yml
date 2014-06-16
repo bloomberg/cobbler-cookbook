@@ -3,7 +3,7 @@ driver:
   name: vagrant
 
 provisioner:
-  name: chef_solo
+  name: chef_zero
 
 platforms:
   - name: ubuntu-12.04
@@ -20,9 +20,13 @@ platforms:
 suites:
   - name: default
     run_list:
-      - 'recipe[cobbler::default]'
+      - 'recipe[cobblerd::default]'
+  - name: images
+    run_list:
+      - 'recipe[cobblerd::centos]'
+      - 'recipe[cobblerd::ubuntu]'
   - name: web
     run_list:
-      - 'recipe[cobbler::web]'
+      - 'recipe[cobblerd::web]'
     excludes:
       - centos-5.10

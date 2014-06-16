@@ -6,7 +6,7 @@
 #
 
 def image_type_from_filename(filename)
-  case Filename.extname(filename)
+  case ::File.extname(filename)
   when 'iso'
     return 'iso'
   else
@@ -15,8 +15,8 @@ def image_type_from_filename(filename)
 end
 
 action :add do
-  basename = File.basename(new_resource.source)
-  filename = File.join(Chef::Config[:file_cache_path], basename)
+  basename = ::File.basename(new_resource.source)
+  filename = ::File.join(Chef::Config[:file_cache_path], basename)
   type = image_type_from_filename(basename)
 
   remote_file filename  do
@@ -28,13 +28,5 @@ action :add do
 end
 
 action :remove do
-  basename = File.basename(new_resource.source)
-  filename = File.join(Chef::Config[:file_cache_path], basename)
-
-  file filename do
-    action :delete
-    only_if { File.exist? filename }
-  end
-
   bash "cobbler image remove --name=#{new_resource.name}"
 end
