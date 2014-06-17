@@ -12,13 +12,14 @@ action :import do
   remote_file filename  do
     source new_resource.source
     checksum new_resource.checksum
+    notifies :run, 'bash[cobbler-import-image]', :immediately
   end
 
   bash 'cobbler-import-image' do
     user 'root'
     code (<<-CODE)
 mount -o loop -o ro #{filename} /mnt
-cobbler import --name=#{new_resource.name} \
+cobbler import --name='#{new_resource.name}' \
   --path=/mnt \
   --breed=#{new_resource.breed} \
   --arch=#{new_resource.arch} \
