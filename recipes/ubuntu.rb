@@ -16,18 +16,18 @@ template filename do
   not_if { File.exist? filename }
 end
 
-cobblerd_image 'ubuntu-12.04-amd64-minimal' do
-  kickstart filename
+cobbler_image 'ubuntu-12.04-amd64-minimal' do
   source 'http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-amd64/current/images/netboot/mini.iso'
   checksum '7df121f07878909646c8f7862065ed7182126b95eadbf5e1abb115449cfba714'
-  breed 'ubuntu'
-  os_version '12.04'
+  os_version 'precise'
+  os_breed 'ubuntu'
+  os_kickstart filename
 end
 
-cobblerd_image 'ubuntu-14.04-amd64-minimal' do
-  kickstart filename
+cobbler_image 'ubuntu-14.04-amd64-minimal' do
   source 'http://archive.ubuntu.com/ubuntu/dists/trusty/main/installer-amd64/current/images/netboot/mini.iso'
   checksum 'bc09966b54f91f62c3c41fc14b76f2baa4cce48595ce22e8c9f24ab21ac8d965'
-  breed 'ubuntu'
-  os_version '14.04'
+  os_version 'trusty'
+  os_breed 'ubuntu'
+  os_kickstart filename
 end

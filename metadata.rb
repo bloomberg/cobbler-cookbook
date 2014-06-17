@@ -15,6 +15,7 @@ end
 supports 'ubuntu', '= 12.04'
 supports 'ubuntu', '= 14.04'
 
-depends 'apt'
-depends 'chef-sugar'
-depends 'yum-epel'
+depends 'apt', '~> 2.4'
+depends 'chef-sugar', '~> 2.0'
+depends 'poise', '~> 1.0'
+depends 'yum-epel', '~> 0.3'
