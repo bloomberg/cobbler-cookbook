@@ -5,7 +5,6 @@
 # Copyright (C) 2014 Bloomberg Finance L.P.
 #
 include_recipe 'cobblerd::default'
-return unless ubuntu?
 
 filename = File.join('/var/lib/cobbler/kickstarts', 'ubuntu.ks')
 template filename do
