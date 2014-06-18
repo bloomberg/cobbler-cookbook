@@ -9,10 +9,6 @@ include_recipe 'cobblerd::default'
 filename = File.join('/var/lib/cobbler/kickstarts', 'redhat.ks')
 template filename do
   source 'redhat.cfg.erb'
-  variables({
-    root_password: node[:cobbler][:root_password],
-    user: node[:cobbler][:user]
-  })
   not_if { File.exist? filename }
 end
 
