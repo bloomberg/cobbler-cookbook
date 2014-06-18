@@ -11,17 +11,23 @@ class Chef
     actions(:import)
 
     attribute(:name, kind_of: String)
+    attribute(:profile, kind_of: String, default: lazy { name })
     attribute(:source, kind_of: String)
     attribute(:target, kind_of: String, default: lazy { target_default })
     attribute(:checksum, kind_of: String)
     attribute(:os_version, kind_of: String)
     attribute(:os_arch, kind_of: String, default: 'x86_64')
     attribute(:os_kickstart, kind_of: String)
+    attribute(:os_kickstart_options, kind_of: String, default: lazy { kopts_default })
     attribute(:os_breed, kind_of: String)
 
     private
     def target_default
       ::File.join(Chef::Config[:file_cache_path], "#{name}#{::File.extname(source)}")
+    end
+
+    def kopts_default
+      'interface=auto'
     end
   end
 
@@ -33,9 +39,10 @@ class Chef
     def action_import
       converge_by("importing #{new_resource.name} into cobbler") do
         notifying_block do
-          download_image
-          execute_import
-          remove_image
+          create_image
+          cobbler_import
+          cobbler_profile_add
+          delete_image
         end
       end
     end
@@ -43,17 +50,30 @@ class Chef
     private
 
     # Fetch a remote target file from the source URI and with correct checksum.
-    def download_image
+    def create_image
       remote_file new_resource.target do
         source new_resource.source
         checksum new_resource.checksum
+        action :create_if_missing
+      end
+    end
+
+    def cobbler_profile_add
+      bash 'cobbler-profile-add' do
+        code (<<-CODE)
+cobbler profile add --name='#{new_resource.profile}' \
+ --path='#{new_resource.name}' \
+ --kickstart=#{new_resource.os_kickstart}
+cobbler sync
+CODE
+        not_if { bash "cobbler profile list |grep #{new_resource.profile}" }
       end
     end
 
     # Run set of bash commands on the guest machine to import information of
     # the image into cobbler on the guest system.
-    def execute_import
-      bash 'cobbler-image-import' do
+    def cobbler_import
+      bash 'cobbler-import' do
         code (<<-CODE)
 mount -o loop -o ro #{new_resource.target} /mnt
 cobbler import --name='#{new_resource.name}' \
@@ -61,7 +81,6 @@ cobbler import --name='#{new_resource.name}' \
  --breed=#{new_resource.os_breed} \
  --arch=#{new_resource.os_arch} \
  --os-version=#{new_resource.os_version} \
- --kickstart=#{new_resource.os_kickstart}
 umount /mnt
 cobbler sync
         CODE
@@ -69,7 +88,7 @@ cobbler sync
       end
 
       # Delete the cached image (see #download_image) from the guest system.
-      def remove_image
+      def delete_image
         file new_resource.target do
           action :delete
           only_if { ::File.exist? new_resource.target }
