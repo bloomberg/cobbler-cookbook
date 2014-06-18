@@ -10,3 +10,6 @@ include_recipe 'yum-epel::default' if rhel?
 include_recipe 'apt::default' if debian?
 
 package 'cobbler'
+service 'cobbler' do
+  action [:enable, :start]
+end
