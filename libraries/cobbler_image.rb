@@ -18,16 +18,12 @@ class Chef
     attribute(:os_version, kind_of: String)
     attribute(:os_arch, kind_of: String, default: 'x86_64')
     attribute(:os_kickstart, kind_of: String)
-    attribute(:os_kickstart_options, kind_of: String, default: lazy { kopts_default })
+    attribute(:os_kickstart_options, kind_of: String, default: lazy { 'interface=auto' })
     attribute(:os_breed, kind_of: String)
 
     private
     def target_default
       ::File.join(Chef::Config[:file_cache_path], "#{name}#{::File.extname(source)}")
-    end
-
-    def kopts_default
-      'interface=auto'
     end
   end
 
@@ -66,7 +62,7 @@ cobbler profile add --name='#{new_resource.profile}' \
  --kickstart=#{new_resource.os_kickstart}
 cobbler sync
 CODE
-        not_if { bash "cobbler profile list |grep #{new_resource.profile}" }
+        not_if "cobbler profile list |grep #{new_resource.profile}"
       end
     end
 
@@ -84,7 +80,7 @@ cobbler import --name='#{new_resource.name}' \
 umount /mnt
 cobbler sync
         CODE
-        not_if { bash "cobbler profile list |grep #{new_resource.name}" }
+        not_if "cobbler profile list |grep #{new_resource.name}"
       end
 
       # Delete the cached image (see #download_image) from the guest system.
