@@ -12,4 +12,5 @@ include_recipe 'apt::default' if debian?
 package 'cobbler'
 service 'cobbler' do
   action [:enable, :start]
+  supports restart: true
 end
