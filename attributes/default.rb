@@ -5,6 +5,9 @@
 # Copyright (C) 2014 Bloomberg Finance L.P.
 #
 
+default[:cobbler][:web_username] = 'cobbler'
+default[:cobbler][:web_password] = 'cobbler'
+
 default[:cobbler][:ks][:username] = 'cloud'
 
 # $ echo 'cobbler' | mkpasswd -S LQTvGQ11AIG0k -s -m sha-512
