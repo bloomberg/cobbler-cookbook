@@ -19,10 +19,8 @@ package 'cobbler-web'
 ruby_block 'Write /etc/cobbler/users.digest' do
   block do
     require 'webrick'
-    htpasswd = ::WEBrick::HTTPAuth::Htpasswd.new('/etc/cobbler/users.digest')
-    htpasswd.auth_type = WEBrick::HTTPAuth::DigestAuth
-    htpasswd.set_passwd 'Cobbler', node[:cobbler][:web_username], node[:cobbler][:web_password]
-    htpasswd.flush
+    file = ::WEBrick::HTTPAuth::Htdigest.new '/etc/cobbler/users.digest'
+    file.set_passwd 'Cobbler', node[:cobbler][:web_username], node[:cobbler][:web_password]
+    file.flush
   end
-  notifies :restart, 'service[apache2]', :delayed
 end
