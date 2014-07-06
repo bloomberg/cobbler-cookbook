@@ -4,10 +4,13 @@ gem 'berkshelf'
 gem 'chef-sugar'
 gem 'chef-rewind'
 gem 'rake'
+gem 'foodcritic'
+gem 'coveralls', require: true
+gem 'rspec'
 
 group :integration, :test do
   gem 'test-kitchen'
   gem 'kitchen-vagrant'
   gem 'serverspec'
-  gem 'foodcritic'
+  gem 'chefspec'
 end
