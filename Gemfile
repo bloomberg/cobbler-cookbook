@@ -7,6 +7,7 @@ gem 'rake'
 gem 'foodcritic'
 gem 'coveralls', require: true
 gem 'rspec'
+gem 'rubocop'
 
 group :integration, :test do
   gem 'test-kitchen'
