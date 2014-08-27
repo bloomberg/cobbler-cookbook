@@ -1,0 +1,125 @@
+#
+# Cookbook Name:: cobblerd
+# Library:: profile
+#
+# Copyright (C) 2014 Bloomberg Finance L.P.
+#
+class Chef
+  class Resource::CobblerProfile < Resource
+    include Poise
+
+    actions(:import)
+    actions(:delete)
+
+    attribute(:name, kind_of: String)
+    attribute(:distro, kind_of: String, required: true)
+    attribute(:kickstart, kind_of: String, default: lazy { source_default })
+    attribute(:kickstart_meta, kind_of: Hash, default: {})
+    attribute(:kernel_options, kind_of: Hash, default: { 'interface' => 'auto' })
+    attribute(:kernel_options_postinstall, kind_of: Hash, default: {} )
+
+    private
+    def source_default
+      return lazy {
+        if ['ubuntu', 'debian'].include?(breed)
+          "#{name}.preseed"
+        elsif breed == 'redhat'
+          "#{name}.ks"
+        elsif breed == 'suse'
+          "#{name}.xml"
+        else
+          Chef::Application.fatal!("Unsupported breed (#{breed})!")
+        end
+      }
+    end
+
+    private
+    def breed
+      @breed ||= determine_distro_breed 
+    end
+
+    private
+    def determine_distro_breed
+        # return breed (e.g. "redhat", "debian", "ubuntu" or "suse")
+
+        # Acquire Cobbler output like:
+        # Name                           : centos-6-x86_64
+        # Architecture                   : x86_64
+        # Breed                          : redhat
+        # [...]
+           distro_chk = Mixlib::ShellOut.new("cobbler distro report --name='#{distro}'")
+           distro_chk.run_command
+           Chef::Application.fatal!("Cobbler failed with:\nStderr: #{distro_chk.stderr.chomp}\nStdout: #{distro_chk.stdout.chomp}\nReturn code: #{distro_chk.exitstatus}") if distro_chk.error?
+           raw_distro_info = distro_chk.stdout
+           raw_breed_line = raw_distro_info.each_line.select { |l| l if l.chomp.start_with?('Breed') }
+           raw_breed_line.first.split(' : ')[1].chomp
+    end
+  end
+
+  class Provider::CobblerProfile < Provider
+    include Poise
+
+    def action_delete
+      converge_by("deleting #{new_resource.name} into cobbler") do
+        notifying_block do
+          cobbler_profile_delete
+        end
+      end
+    end
+
+    def action_import
+      converge_by("importing #{new_resource.name} into cobbler") do
+        notifying_block do
+          cobbler_profile_add
+        end
+      end
+    end
+
+    private
+
+    def cobbler_profile_add
+      template "/var/lib/cobbler/kickstarts/#{new_resource.kickstart}" do
+        source "#{new_resource.kickstart}.erb"
+        action :create
+      end
+
+      bash 'cobbler-profile-add' do
+        code (<<-CODE)
+          cobbler profile add --name='#{new_resource.name}' \
+          --clobber \
+          --distro='#{new_resource.distro}' \
+          --kickstart='/var/lib/cobbler/kickstarts/#{new_resource.kickstart}' \
+          #{"--kopts='#{new_resource.kernel_options.map{ |k,v| "#{k}=#{v}" }.join(" ")}'" if new_resource.kernel_options.length > 0} \
+          #{"--kopts-post='#{new_resource.kernel_options_postinstall.map{ |k,v| "#{k}=#{v}" }.join(" ")}'" if new_resource.kernel_options_postinstall.length > 0} \
+          #{"--ksmeta='#{new_resource.kernel_options_postinstall.map{ |k,v| "#{k}=#{v}" }.join(" ")}'" if new_resource.kernel_options_postinstall.length > 0 } 
+        CODE
+        notifies :run, 'bash[cobbler-sync]', :delayed
+        not_if "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
+      end
+
+      bash 'verify cobbler-profile-add' do
+        code "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
+      end
+
+    end
+
+    def cobbler_profile_delete
+      bash 'cobbler-profile-delete' do
+        code "cobbler profile remove --name='#{new_resource.name}'"
+        notifies :run, 'bash[cobbler-sync]', :delayed
+        only_if "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
+      end
+
+      file "/var/lib/cobbler/kickstarts/#{new_resource.kickstart}" do
+        action :delete
+        only_if { ::File.exist? "/var/lib/cobbler/kickstarts/#{new_resource.kickstart}" }
+      end
+
+      bash 'verify cobbler-profile-delete' do
+        code "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
+        returns [1]
+      end
+    end
+
+  end
+end
