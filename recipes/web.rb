@@ -7,7 +7,7 @@
 
 include_recipe 'cobblerd::default'
 
-if rhel?
+if node[:platform_family] == 'rhel'
   return unless node[:platform_version].to_f > 5
   include_recipe 'yum-epel::default'
 end

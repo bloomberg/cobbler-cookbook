@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 
 gem 'berkshelf'
-gem 'chef-sugar'
 gem 'chef-rewind'
 gem 'rake'
 gem 'foodcritic'
