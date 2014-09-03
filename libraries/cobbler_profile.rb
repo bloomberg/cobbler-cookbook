@@ -7,6 +7,7 @@
 class Chef
   class Resource::CobblerProfile < Resource
     include Poise
+    include Cobbler::Parse
 
     actions(:import)
     actions(:delete)
@@ -35,24 +36,8 @@ class Chef
 
     private
     def breed
-      @breed ||= determine_distro_breed 
-    end
-
-    private
-    def determine_distro_breed
-        # return breed (e.g. "redhat", "debian", "ubuntu" or "suse")
-
-        # Acquire Cobbler output like:
-        # Name                           : centos-6-x86_64
-        # Architecture                   : x86_64
-        # Breed                          : redhat
-        # [...]
-           distro_chk = Mixlib::ShellOut.new("cobbler distro report --name='#{distro}'")
-           distro_chk.run_command
-           Chef::Application.fatal!("Cobbler failed with:\nStderr: #{distro_chk.stderr.chomp}\nStdout: #{distro_chk.stdout.chomp}\nReturn code: #{distro_chk.exitstatus}") if distro_chk.error?
-           raw_distro_info = distro_chk.stdout
-           raw_breed_line = raw_distro_info.each_line.select { |l| l if l.chomp.start_with?('Breed') }
-           raw_breed_line.first.split(' : ')[1].chomp
+      # return breed (e.g. "redhat", "debian", "ubuntu" or "suse")
+      @breed ||= cobbler_distro(distro, "Breed")
     end
   end
 
