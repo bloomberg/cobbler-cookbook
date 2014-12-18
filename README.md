@@ -1,8 +1,5 @@
 cobbler-cookbook
 ================
-![Release](http://img.shields.io/github/release/johnbellone/cobbler-cookbook.svg)
-[![Build Status](http://img.shields.io/travis/johnbellone/cobbler-cookbook.svg)][4]
-[![Code Coverage](http://img.shields.io/coveralls/johnbellone/cobbler-cookbook.svg)][5]
 
 Installs and configures [Cobbler][1] and Cobbler Web.
 
@@ -97,10 +94,7 @@ Include `cobblerd` in your node's `run_list`:
 
 ## Maintainers
 
-Author:: [John Bellone][2] [@johnbellone][3] (<jbellone@bloomberg.net>)
+Author:: [Bloomberg Compute Architecture Group][2] (<compute@bloomberg.net>)
 
 [1]: http://www.cobblerd.org
-[2]: https://github.com/johnbellone
-[3]: https://twitter.com/johnbellone
-[4]: http://travis-ci.org/johnbellone/cobbler-cookbook
-[5]: https://coveralls.io/r/johnbellone/cobbler-cookbook
+[2]: http://www.bloomberglabs.com/compute-architecture/
