@@ -81,6 +81,7 @@ class Chef
     def generate_remote_file_action
       return remote_file new_resource.target do
         source new_resource.source
+        mode 0444
         backup false
         checksum new_resource.checksum
         action :nothing
@@ -139,6 +140,7 @@ class Chef
       remote_file "kernel" do
         path kernel_path
         source new_resource.kernel
+        mode 0444
         backup false
         checksum new_resource.kernel_checksum
         action :create
@@ -187,6 +189,7 @@ class Chef
       remote_file "initrd" do
         path initrd_path
         source new_resource.initrd
+        mode 0444
         backup false
         checksum new_resource.initrd_checksum
         action :create

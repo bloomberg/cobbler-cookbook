@@ -78,6 +78,7 @@ class Chef
           #{"--kopts-post='#{new_resource.kernel_options_postinstall.map{ |k,v| "#{k}=#{v}" }.join(" ")}'" if new_resource.kernel_options_postinstall.length > 0} \
           #{"--ksmeta='#{new_resource.kernel_options_postinstall.map{ |k,v| "#{k}=#{v}" }.join(" ")}'" if new_resource.kernel_options_postinstall.length > 0 } 
         CODE
+        umask 0002
         notifies :run, 'bash[cobbler-sync]', :delayed
         not_if "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
       end
