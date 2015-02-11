@@ -63,7 +63,7 @@ class Chef
     private
 
     def cobbler_profile_add
-      template "/var/lib/cobbler/kickstarts/#{new_resource.kickstart}" do
+      template "/var/lib/cobbler/kickstarts/#{new_resource.name}" do
         source "#{new_resource.kickstart}.erb"
         action :create
       end
@@ -73,7 +73,7 @@ class Chef
           cobbler profile add --name='#{new_resource.name}' \
           --clobber \
           --distro='#{new_resource.distro}' \
-          --kickstart='/var/lib/cobbler/kickstarts/#{new_resource.kickstart}' \
+          --kickstart='/var/lib/cobbler/kickstarts/#{new_resource.name}' \
           #{"--kopts='#{new_resource.kernel_options.map{ |k,v| "#{k}=#{v}" }.join(" ")}'" if new_resource.kernel_options.length > 0} \
           #{"--kopts-post='#{new_resource.kernel_options_postinstall.map{ |k,v| "#{k}=#{v}" }.join(" ")}'" if new_resource.kernel_options_postinstall.length > 0} \
           #{"--ksmeta='#{new_resource.kernel_options_postinstall.map{ |k,v| "#{k}=#{v}" }.join(" ")}'" if new_resource.kernel_options_postinstall.length > 0 } 
@@ -95,9 +95,9 @@ class Chef
         only_if "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
       end
 
-      file "/var/lib/cobbler/kickstarts/#{new_resource.kickstart}" do
+      file "/var/lib/cobbler/kickstarts/#{new_resource.name}" do
         action :delete
-        only_if { ::File.exist? "/var/lib/cobbler/kickstarts/#{new_resource.kickstart}" }
+        only_if { ::File.exist? "/var/lib/cobbler/kickstarts/#{new_resource.name}" }
       end
 
       bash 'verify cobbler-profile-delete' do

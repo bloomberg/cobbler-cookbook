@@ -2,7 +2,7 @@
 # Cookbook Name:: cobblerd
 # Library:: image
 #
-# Copyright (C) 2014 Bloomberg Finance L.P.
+# Copyright (C) 2015 Bloomberg Finance L.P.
 #
 
 class Chef
@@ -129,7 +129,12 @@ class Chef
       # Arguments - force_run -- boolean as to if this should run without checking checksums
       Chef::Resource::RemoteFile.send(:include, Cobbler::Parse)
 
-      kernel_path = "/var/lib/tftpboot/grub/images/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.kernel)}"
+      kernel_path = "#{node[:cobblerd][:resource_storage]}/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.kernel)}"
+
+      directory ::File.dirname(kernel_path) do
+        action :create
+        recursive true
+      end
 
       remote_file "kernel" do
         path kernel_path
@@ -172,7 +177,12 @@ class Chef
       # Arguments - force_run -- boolean as to if this should run without checking checksums
       Chef::Resource::RemoteFile.send(:include, Cobbler::Parse)
 
-      initrd_path = "/var/lib/tftpboot/grub/images/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.initrd)}"
+      initrd_path = "#{node[:cobbler][:resource_storage]}/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.initrd)}"
+
+      directory ::File.dirname(initrd_path) do
+        action :create
+        recursive true
+      end
 
       remote_file "initrd" do
         path initrd_path
