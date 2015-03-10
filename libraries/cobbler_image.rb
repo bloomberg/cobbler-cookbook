@@ -90,13 +90,13 @@ class Chef
 
     # Mount the image and then cobbler import the image
     def cobbler_import
-      directory 'mount_point' do
+      directory "#{new_resource.name}-mount_point" do
         path "#{::File.join(Chef::Config[:file_cache_path], 'mnt')}"
         action :create
         only_if { ::File.exist? new_resource.target }
       end
 
-      mount 'image' do
+      mount "#{new_resource.name}-image" do
         mount_point "#{::File.join(Chef::Config[:file_cache_path], 'mnt')}"
         device new_resource.target
         fstype 'iso9660'
@@ -105,7 +105,7 @@ class Chef
         only_if { ::File.exist? new_resource.target }
       end
 
-      bash 'cobbler-import' do
+      bash "#{new_resource.name}-cobbler-import" do
         code (<<-CODE)
           cobbler import --name='#{new_resource.name}' \
            --path=#{::File.join(Chef::Config[:file_cache_path], 'mnt')} \
@@ -113,14 +113,14 @@ class Chef
            --arch=#{new_resource.os_arch} \
            --os-version=#{new_resource.os_version}
         CODE
-        notifies :umount, 'mount[image]', :immediate
-        notifies :delete, 'directory[mount_point]', :delayed
+        notifies :umount, "mount[#{new_resource.name}-image]", :immediate
+        notifies :delete, "directory[#{new_resource.name}-mount_point]", :delayed
         notifies :delete, "remote_file[#{new_resource.target}]", :immediate
         notifies :run, 'bash[cobbler-sync]', :delayed
         only_if { ::File.exist? new_resource.target }
       end
 
-      bash 'verify cobbler-import' do
+      bash "#{new_resource.name}-verify cobbler-import" do
         code "cobbler distro report --name='#{new_resource.name}-#{new_resource.os_arch}'"
       end
     end
@@ -137,7 +137,7 @@ class Chef
         recursive true
       end
 
-      remote_file "kernel" do
+      remote_file "#{new_resource.name}-kernel" do
         path kernel_path
         source new_resource.kernel
         mode 0444
@@ -158,10 +158,11 @@ class Chef
             true # run if force_run
           end
         }
-        notifies :run, "bash[cobbler-distro-update-kernel]", :immediately
+        notifies :run, "bash[#{new_resource.name}-cobbler-distro-update-kernel]", :immediately
       end
 
-      bash 'cobbler-distro-update-kernel' do
+      bash "#{new_resource.name}-cobbler-distro-update-kernel" do
+        cobbler_kernel_loc = "/var/lib/tftpboot/images/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.kernel)}"
         code (<<-CODE)
           cobbler distro edit --name='#{new_resource.name}-#{new_resource.os_arch}' \
            --kernel='#{kernel_path}' \
@@ -169,7 +170,11 @@ class Chef
            --arch=#{new_resource.os_arch} \
            --os-version=#{new_resource.os_version}
         CODE
-        action :nothing
+        action :run
+        not_if do
+          ::File.exist? cobbler_kernel_loc and \
+            new_resource.kernel_checksum ? new_resource.kernel_checksum == Digest::SHA256.file(cobbler_kernel_loc).hexdigest : true
+        end
         notifies :run, 'bash[cobbler-sync]', :delayed
       end
     end
@@ -186,7 +191,7 @@ class Chef
         recursive true
       end
 
-      remote_file "initrd" do
+      remote_file "#{new_resource.name}-initrd" do
         path initrd_path
         source new_resource.initrd
         mode 0444
@@ -207,10 +212,11 @@ class Chef
             true # run if force_run
           end
         }
-        notifies :run, "bash[cobbler-distro-update-initrd]", :immediately
+        notifies :run, "bash[#{new_resource.name}-cobbler-distro-update-initrd]", :immediately
       end
 
-      bash 'cobbler-distro-update-initrd' do
+      bash "#{new_resource.name}-cobbler-distro-update-initrd" do
+        cobbler_initrd_loc = "/var/lib/tftpboot/images/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.initrd)}"
         code (<<-CODE)
           cobbler distro edit --name='#{new_resource.name}-#{new_resource.os_arch}' \
            --initrd='#{initrd_path}' \
@@ -218,7 +224,11 @@ class Chef
            --arch=#{new_resource.os_arch} \
            --os-version=#{new_resource.os_version}
         CODE
-        action :nothing
+        action :run
+        not_if do
+          ::File.exist? cobbler_initrd_loc and \
+            new_resource.initrd_checksum ? new_resource.initrd_checksum == Digest::SHA256.file(cobbler_initrd_loc).hexdigest : true
+        end
         notifies :run, 'bash[cobbler-sync]', :delayed
       end
     end

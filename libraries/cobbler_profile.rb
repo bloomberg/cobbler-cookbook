@@ -68,7 +68,7 @@ class Chef
         action :create
       end
 
-      bash 'cobbler-profile-add' do
+      bash "#{new_resource.name}-cobbler-profile-add" do
         code (<<-CODE)
           cobbler profile add --name='#{new_resource.name}' \
           --clobber \
@@ -83,14 +83,14 @@ class Chef
         not_if "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
       end
 
-      bash 'verify cobbler-profile-add' do
+      bash "#{new_resource.name}-verify cobbler-profile-add" do
         code "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
       end
 
     end
 
     def cobbler_profile_delete
-      bash 'cobbler-profile-delete' do
+      bash "#{new_resource.name}-cobbler-profile-delete" do
         code "cobbler profile remove --name='#{new_resource.name}'"
         notifies :run, 'bash[cobbler-sync]', :delayed
         only_if "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
@@ -101,7 +101,7 @@ class Chef
         only_if { ::File.exist? "/var/lib/cobbler/kickstarts/#{new_resource.name}" }
       end
 
-      bash 'verify cobbler-profile-delete' do
+      bash "#{new_resource.name}-verify cobbler-profile-delete" do
         code "cobbler profile find --name='#{new_resource.name}' --distro='#{new_resource.distro}'|grep -q '^#{new_resource.name}$'"
         returns [1]
       end
