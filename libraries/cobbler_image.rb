@@ -162,6 +162,7 @@ class Chef
       end
 
       bash "#{new_resource.name}-cobbler-distro-update-kernel" do
+        cobbler_kernel_loc = "/var/lib/tftpboot/images/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.kernel)}"
         code (<<-CODE)
           cobbler distro edit --name='#{new_resource.name}-#{new_resource.os_arch}' \
            --kernel='#{kernel_path}' \
@@ -169,7 +170,11 @@ class Chef
            --arch=#{new_resource.os_arch} \
            --os-version=#{new_resource.os_version}
         CODE
-        action :nothing
+        action :run
+        not_if do
+          ::File.exist? cobbler_kernel_loc and \
+            new_resource.kernel_checksum ? new_resource.kernel_checksum == Digest::SHA256.file(cobbler_kernel_loc).hexdigest : true
+        end
         notifies :run, 'bash[cobbler-sync]', :delayed
       end
     end
@@ -211,6 +216,7 @@ class Chef
       end
 
       bash "#{new_resource.name}-cobbler-distro-update-initrd" do
+        cobbler_initrd_loc = "/var/lib/tftpboot/images/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.initrd)}"
         code (<<-CODE)
           cobbler distro edit --name='#{new_resource.name}-#{new_resource.os_arch}' \
            --initrd='#{initrd_path}' \
@@ -218,7 +224,11 @@ class Chef
            --arch=#{new_resource.os_arch} \
            --os-version=#{new_resource.os_version}
         CODE
-        action :nothing
+        action :run
+        not_if do
+          ::File.exist? cobbler_initrd_loc and \
+            new_resource.initrd_checksum ? new_resource.initrd_checksum == Digest::SHA256.file(cobbler_initrd_loc).hexdigest : true
+        end
         notifies :run, 'bash[cobbler-sync]', :delayed
       end
     end
