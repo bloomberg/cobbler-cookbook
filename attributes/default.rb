@@ -12,6 +12,13 @@ default[:cobblerd][:ks][:username] = 'cloud'
 
 default[:cobblerd][:resource_storage] = '/var/local/cobbler/images/'
 
+# Cobbler git repo and branch
+default[:cobbler][:repo][:url] = 'https://github.com/cobbler/cobbler'
+default[:cobblwr][:repo][:branch] = 'v2.6.10'
+
+# Cobbler build location
+default[:cobbler][:bin_dir] = "#{Chef::Config[:file_cache_path]}"
+
 # $ echo 'cobbler' | mkpasswd -S LQTvGQ11AIG0k -s -m sha-512
 default[:cobblerd][:ks][:root_password] = '$6$LQTvGQ11AIG0k$TOSqMnXrQ9Y.3AP6KwRnMitmRaIeteoDKlxVbJgxXB07bK8HdzthHps8gjbIn0iYbTI1BpOVIUtqks6Ed06E7/'
 default[:cobblerd][:ks][:user_password] = '$6$LQTvGQ11AIG0k$TOSqMnXrQ9Y.3AP6KwRnMitmRaIeteoDKlxVbJgxXB07bK8HdzthHps8gjbIn0iYbTI1BpOVIUtqks6Ed06E7/'
