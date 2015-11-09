@@ -18,6 +18,6 @@ end
 
 # define cobbler sync for actions which need it
 bash 'cobbler-sync' do
-  command 'cobbler sync'
+  code 'cobbler sync'
   action :nothing
 end
