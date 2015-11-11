@@ -12,9 +12,14 @@ default[:cobblerd][:ks][:username] = 'cloud'
 
 default[:cobblerd][:resource_storage] = '/var/local/cobbler/images/'
 
-# Cobbler git repo and branch
+# Syslinux git repo and revision
+default[:cobbler][:syslinux][:repo][:url] = 'http://repo.or.cz/syslinux.git'
+default[:cobblwr][:syslinux][:repo][:revision] = 'syslinux-6.03'
+
+# Cobbler git repo and revision
 default[:cobbler][:repo][:url] = 'https://github.com/cobbler/cobbler'
-default[:cobblwr][:repo][:branch] = 'v2.6.10'
+# revision points to v2.6.10
+default[:cobbler][:repo][:revision] = '5bffb9e73faa5c48e167e86f04d4687576810e4e'
 
 # Cobbler build location
 default[:cobbler][:bin_dir] = "#{Chef::Config[:file_cache_path]}"
