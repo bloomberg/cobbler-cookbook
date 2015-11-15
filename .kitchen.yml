@@ -12,20 +12,31 @@ platforms:
   - name: centos-6.7
   - name: centos-7.2
 suites:
-  - name: source_build
+  - name: cobbler_source_build
     run_list:
-      - 'recipe[cobblerd::source]'
+      - 'recipe[cobblerd::cobbler_source]'
       - 'recipe[cobblerd::default]'
-  - name: package_install
+  - name: cobbler_package_install
     run_list:
-      - 'recipe[cobblerd::package]'
+      - 'recipe[cobblerd::cobbler_package]'
       - 'recipe[cobblerd::default]'
-  - name: images
+  - name: cobbler_source_images
     run_list:
+      - 'recipe[cobblerd::cobbler_source]'
+      - 'recipe[cobblerd::default]'
       - 'recipe[cobblerd::centos]'
       - 'recipe[cobblerd::ubuntu]'
-  - name: web
+  - name: cobbler_package_images
     run_list:
-      - 'recipe[cobblerd::web]'
+      - 'recipe[cobblerd::cobbler_package]'
+      - 'recipe[cobblerd::default]'
+      - 'recipe[cobblerd::centos]'
+      - 'recipe[cobblerd::ubuntu]'
+  - name: syslinx_source
+    run_list:
+      - 'recipe[cobblerd::syslinux_source]'
+  - name: syslinx_package
+    run_list:
+      - 'recipe[cobblerd::syslinux_package]'
     excludes:
       - centos-5.11

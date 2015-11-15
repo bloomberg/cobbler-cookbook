@@ -5,13 +5,7 @@
 # Copyright (C) 2015 Bloomberg Finance L.P.
 #
 
-service 'cobbler' do
-  case node['platform']
-    when 'centos','redhat','fedora'
-      if node['platform_version'].to_i >= 6
-        service_name 'cobblerd'
-      end
-  end
+service node['cobbler']['service_name'] do
   action [:enable, :start]
   supports restart: true
 end
