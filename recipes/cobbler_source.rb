@@ -8,7 +8,9 @@
 build_user = 'nobody'
 build_group = 'nogroup'
 
-source_code_root = "#{Chef::Config[:file_cache_path]}/cobbler_build"
+# in some cases the Chef file cache is not writeable by nobody so allow overriding
+node.default['cobbler']['source']['dir'] ||= "#{Chef::Config[:file_cache_path]}/cobbler_build"
+source_code_root = node['cobbler']['source']['dir']
 
 cobbler_code_location = "#{source_code_root}/cobbler"
 cobbler_target_filename = 'cobbler.rpm' if node[:platform_family] == "rhel"
@@ -89,13 +91,34 @@ end
     only_if { ::Dir.glob("#{source_code_root}/cobbler_*.deb").length > 0 }
   end
 
+  # Cobbler requires mod_version and mod_wsgi in its apache config. make sure
+  # Apache is installed and modules are configured
+  %w{apache2 libapache2-mod-wsgi}.each do |pkg|
+    package pkg do
+      action :install
+    end
+  end
+
+  %w{version wsgi}.each do |mod|
+    bash "a2enmod #{mod}" do
+      action :run
+      notifies :restart, 'service[apache2]', :immediate
+      not_if { ::File.exists?("/etc/apache2/mods-enabled/#{mod}.load") }
+    end
+  end
+
+  service 'apache2' do
+    action :nothing
+  end
+
   # install cobbler
+  cobbler_verify_cmd = 'dpkg-query -W -f=\'${Status}\' cobbler | grep -q \'^install ok installed$\''
   bash 'install cobbler' do
-    code "dpkg -i #{cobbler_target_filepath} || apt-get install -yf && dpkg -l cobbler"
-    not_if "dpkg -l cobbler"
+    code "dpkg -i #{cobbler_target_filepath} || apt-get install -yf && #{cobbler_verify_cmd}"
+    not_if cobbler_verify_cmd
   end
  
-  node.default['cobbler']['service_name'] = "cobblerd"
+  node.default['cobbler']['service']['name'] = 'cobblerd'
 #end
 
 bash "cleanup" do

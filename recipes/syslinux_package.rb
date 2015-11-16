@@ -11,7 +11,6 @@ remote_file syslinux_tarball do
   source node['cobbler']['syslinux']['binary']['url']
   action :create
   checksum node[:cobbler][:syslinux][:binary][:signature]
-  not_if { ::File.exists?('/var/lib/cobbler/loaders') }
 end
 
 # files to copy in /var/lib/tftpboot/
@@ -36,6 +35,7 @@ syslinux_files = {
 
 syslinux_files.keys.each do |dirname|
   directory "/var/lib/tftpboot/#{dirname}" do
+    mode 00755
     action :create
     recursive true
   end
