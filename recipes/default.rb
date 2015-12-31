@@ -10,6 +10,12 @@ include_recipe 'apt::default' if node[:platform_family] == "debian"
 package 'cobbler'
 
 service 'cobbler' do
+  case node['platform']
+    when 'centos','redhat','fedora'
+      if node['platform_version'].to_i > 6
+        service_name 'cobblerd'
+      end
+  end
   action [:enable, :start]
   supports restart: true
 end
