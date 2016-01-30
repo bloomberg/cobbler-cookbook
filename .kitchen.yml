@@ -30,11 +30,4 @@ suites:
     run_list:
       - 'recipe[cobblerd::web]'
     excludes:
-      - centos-5.10
-  - name: repos
-    run_list:
-      - 'recipe[cobblerd::default]'
-    attributes:
-      cobbler:
-        repo:
-          use_databags: true
+      - centos-5.11
