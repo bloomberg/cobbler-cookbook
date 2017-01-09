@@ -7,9 +7,17 @@ provisioner:
 
 platforms:
   - name: ubuntu-12.04
+    provisioner:
+      name: chef_zero_berks_env
+      require_chef_omnibus: '11.18.12'
+      environments_path: 'environments'
+      client_rb:
+        environment: 'chef11'
     run_list:
       - 'recipe[apt::default]'
   - name: ubuntu-14.04
+    run_list:
+      - 'recipe[apt::default]'
   - name: centos-6.7
   - name: centos-7.2
   - name: centos-5.11

@@ -20,7 +20,8 @@ ruby_block 'Write /etc/cobbler/users.digest' do
   block do
     require 'webrick'
     file = ::WEBrick::HTTPAuth::Htdigest.new '/etc/cobbler/users.digest'
-    file.set_passwd 'Cobbler', node[:cobbler][:web_username], node[:cobbler][:web_password]
+    file.set_passwd 'Cobbler', node[:cobblerd][:web_username],
+                               node[:cobblerd][:web_password]
     file.flush
   end
   notifies :restart, 'service[cobbler]', :delayed
