@@ -12,6 +12,9 @@ default[:cobbler][:ks][:username] = 'cloud'
 
 default[:cobbler][:resource_storage] = '/var/local/cobbler/images/'
 
+# If Apache2 should be configured for cobbler
+default[:cobbler][:include_apache2] = false
+
 # $ echo 'cobbler' | mkpasswd -S LQTvGQ11AIG0k -s -m sha-512
 default[:cobbler][:ks][:root_password] = '$6$LQTvGQ11AIG0k$TOSqMnXrQ9Y.3AP6KwRnMitmRaIeteoDKlxVbJgxXB07bK8HdzthHps8gjbIn0iYbTI1BpOVIUtqks6Ed06E7/'
 default[:cobbler][:ks][:user_password] = '$6$LQTvGQ11AIG0k$TOSqMnXrQ9Y.3AP6KwRnMitmRaIeteoDKlxVbJgxXB07bK8HdzthHps8gjbIn0iYbTI1BpOVIUtqks6Ed06E7/'
