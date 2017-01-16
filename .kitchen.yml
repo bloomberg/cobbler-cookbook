@@ -10,6 +10,7 @@ platforms:
     run_list:
       - 'recipe[apt::default]'
   - name: ubuntu-14.04
+  - name: ubuntu-16.04
   - name: centos-6.7
   - name: centos-7.2
   - name: centos-5.11
@@ -24,10 +25,12 @@ suites:
       - 'recipe[cobblerd::default]'
   - name: apache2
     run_list:
-      - 'recipe[cobblerd::default]'
+      - 'recipe[cobblerd::web]'
     attributes:
       cobbler:
         include_apache2: true
+    includes:
+      - ubuntu-16.04
   - name: images
     run_list:
       - 'recipe[cobblerd::centos]'
