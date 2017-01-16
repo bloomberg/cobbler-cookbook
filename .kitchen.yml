@@ -27,6 +27,8 @@ suites:
     run_list:
       - 'recipe[cobblerd::web]'
     attributes:
+      apache:
+        default_modules: ['wsgi']
       cobbler:
         include_apache2: true
     includes:
