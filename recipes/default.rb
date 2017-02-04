@@ -12,7 +12,7 @@ package 'cobbler'
 service 'cobbler' do
   case node['platform']
     when 'centos','redhat','fedora'
-      if node['platform_version'].to_i > 6
+      if node['platform_version'].to_i >= 6
         service_name 'cobblerd'
       end
   end
