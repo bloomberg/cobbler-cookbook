@@ -22,6 +22,12 @@ suites:
   - name: default
     run_list:
       - 'recipe[cobblerd::default]'
+  - name: apache2
+    run_list:
+      - 'recipe[cobblerd::default]'
+    attributes:
+      cobbler:
+        include_apache2: true
   - name: images
     run_list:
       - 'recipe[cobblerd::centos]'

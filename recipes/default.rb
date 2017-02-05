@@ -6,8 +6,10 @@
 #
 include_recipe 'yum-epel::default' if node[:platform_family] == "rhel"
 include_recipe 'apt::default' if node[:platform_family] == "debian"
+include_recipe 'cobblerd::apache' if node[:cobbler][:include_apache2]
 
 package 'cobbler'
+package 'syslinux'
 
 service 'cobbler' do
   case node['platform']

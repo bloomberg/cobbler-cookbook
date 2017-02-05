@@ -16,5 +16,6 @@ supports 'ubuntu', '= 12.04'
 supports 'ubuntu', '= 14.04'
 
 depends 'poise', '~> 1.0'
-recommends 'apt', '~> 2.4'
-recommends 'yum-epel', '~> 0.3'
+depends 'apt', '~> 2.4'
+depends 'yum-epel', '~> 0.3'
+depends 'apache2'
