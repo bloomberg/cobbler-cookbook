@@ -8,21 +8,22 @@ include_recipe 'cobblerd::default'
 
 profile = 'redhat'
 
-cobbler_image 'centos-6.5-netinstall' do
-  source 'http://mirror.es.its.nyu.edu/centos/6.5/isos/x86_64/CentOS-6.5-x86_64-netinstall.iso'
-  checksum 'd8aaf698408c0c01843446da4a20b1ac03d27f87aad3b3b7b7f42c6163be83b9'
+#cobbler_image 'centos-7.3-1611-minimal' do
+#  source 'http://mirror.symnds.com/CentOS/7.3.1611/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso'
+#  checksum '27bd866242ee058b7a5754e83d8ee8403e216b93d130d800852a96f41c34d86a'
+#  os_breed 'redhat'
+#  os_version 'rhel7'
+#end
+
+cobbler_image 'centos-6.8-minimal' do
+  source 'http://mirror.symnds.com/CentOS/6.8/isos/x86_64/CentOS-6.8-x86_64-minimal.iso'
+  checksum 'ec49c297d484b9da0787e5944edc38f7c70f21c0f6a60178d8e9a8926d1949f4'
   os_breed 'redhat'
   os_version 'rhel6'
 end
 
-cobbler_image 'centos-5.10-netinstall' do
-  source 'http://mirror.es.its.nyu.edu/centos/5.10/isos/x86_64/CentOS-5.10-x86_64-netinstall.iso'
-  checksum '87cdf657f3c1c0fdb77189f533d3df79bf0e36e6a797c2c145c61a00a0c6d0a2'
-  os_breed 'redhat'
-  os_version 'rhel5'
-end
-
-%w{centos-6.5-netinstall centos-5.10-netinstall}.each do |dist|
+#%w{centos-7.3.1611-minimal centos-6.8-minimal}.each do |dist|
+%w{centos-6.8-minimal}.each do |dist|
   cobbler_profile "#{profile}-#{dist}" do
     kickstart "#{profile}.ks"
     distro "#{dist}-x86_64"

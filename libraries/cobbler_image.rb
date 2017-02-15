@@ -5,10 +5,14 @@
 # Copyright (C) 2015 Bloomberg Finance L.P.
 #
 
+begin
+  require 'poise'
+rescue LoadError
+end
+
 class Chef
   class Resource::CobblerImage < Resource
     include Poise
-
     actions(:import)
 
     # WARNING: some options are not idempotent:
@@ -39,16 +43,16 @@ class Chef
 
   class Provider::CobblerImage < Provider
     include Poise
+    provides(:cobbler_image) if respond_to?(:provides)
 
     # Verify the resource name before importing image
     def action_import
       converge_by("importing #{new_resource.name} into cobbler") do
-        notifying_block do
 
           # Check if any restricted words are present
-          bare_words = node[:cobbler][:distro][:reserved_words][:bare_words]
-          separators = node[:cobbler][:distro][:reserved_words][:separators]
-          arch = node[:cobbler][:distro][:reserved_words][:arch]
+          bare_words = node[:cobblerd][:distro][:reserved_words][:bare_words]
+          separators = node[:cobblerd][:distro][:reserved_words][:separators]
+          arch = node[:cobblerd][:distro][:reserved_words][:arch]
           strings_caught = bare_words.select{ |word| word if new_resource.name.include?(word) }
           strings_caught = strings_caught + separators.collect{ |sep| arch.collect{ |arch| sep+arch if new_resource.name.include?(sep+arch) } }.flatten.select{|s| s}
           if strings_caught.length > 0 then
@@ -62,67 +66,56 @@ class Chef
 
           # create the remote_file to allow :delete to be called on it
           # but only :create if this is a new distribution
-          iso_action = generate_remote_file_action
-          if new_distro
-            iso_action.send(:action,:create)
+          remote_file new_resource.target do
+            source new_resource.source
+            mode 0444
+            backup false
+            checksum new_resource.checksum
+            if new_distro
+              action :create
+            else
+              action :nothing
+            end
           end
 
-          cobbler_import
+          # Mount the image and then cobbler import the image
+          directory "#{new_resource.name}-mount_point" do
+            path "#{::File.join(Chef::Config[:file_cache_path], 'mnt')}"
+            action :create
+            only_if { ::File.exist? new_resource.target }
+          end
+
+          mount "#{new_resource.name}-image" do
+            mount_point "#{::File.join(Chef::Config[:file_cache_path], 'mnt')}"
+            device new_resource.target
+            fstype 'iso9660'
+            options ['loop','ro'] 
+            action :mount
+            only_if { ::File.exist? new_resource.target }
+          end
+
+          bash "#{new_resource.name}-cobbler-import" do
+            code (<<-CODE)
+              cobbler import --name='#{new_resource.name}' \
+               --path=#{::File.join(Chef::Config[:file_cache_path], 'mnt')} \
+               --breed=#{new_resource.os_breed} \
+               --arch=#{new_resource.os_arch} \
+               --os-version=#{new_resource.os_version}
+            CODE
+            notifies :umount, "mount[#{new_resource.name}-image]", :immediate
+            notifies :delete, "directory[#{new_resource.name}-mount_point]", :delayed
+            notifies :delete, "remote_file[#{new_resource.target}]", :immediate
+            notifies :run, 'bash[cobbler-sync]', :delayed
+            only_if { ::File.exist? new_resource.target }
+          end
+
+          bash "#{new_resource.name}-verify cobbler-import" do
+            code "cobbler distro report --name='#{new_resource.name}-#{new_resource.os_arch}'"
+          end
 
           cobbler_set_kernel(force_run = new_distro) if new_resource.kernel
           cobbler_set_initrd(force_run = new_distro) if new_resource.initrd
         end
-      end
-    end
-
-    private
-
-    # Return the resource to fetch a remote target file for the image
-    def generate_remote_file_action
-      return remote_file new_resource.target do
-        source new_resource.source
-        mode 0444
-        backup false
-        checksum new_resource.checksum
-        action :nothing
-      end
-    end
-
-    # Mount the image and then cobbler import the image
-    def cobbler_import
-      directory "#{new_resource.name}-mount_point" do
-        path "#{::File.join(Chef::Config[:file_cache_path], 'mnt')}"
-        action :create
-        only_if { ::File.exist? new_resource.target }
-      end
-
-      mount "#{new_resource.name}-image" do
-        mount_point "#{::File.join(Chef::Config[:file_cache_path], 'mnt')}"
-        device new_resource.target
-        fstype 'iso9660'
-        options ['loop','ro'] 
-        action :mount
-        only_if { ::File.exist? new_resource.target }
-      end
-
-      bash "#{new_resource.name}-cobbler-import" do
-        code (<<-CODE)
-          cobbler import --name='#{new_resource.name}' \
-           --path=#{::File.join(Chef::Config[:file_cache_path], 'mnt')} \
-           --breed=#{new_resource.os_breed} \
-           --arch=#{new_resource.os_arch} \
-           --os-version=#{new_resource.os_version}
-        CODE
-        notifies :umount, "mount[#{new_resource.name}-image]", :immediate
-        notifies :delete, "directory[#{new_resource.name}-mount_point]", :delayed
-        notifies :delete, "remote_file[#{new_resource.target}]", :immediate
-        notifies :run, 'bash[cobbler-sync]', :delayed
-        only_if { ::File.exist? new_resource.target }
-      end
-
-      bash "#{new_resource.name}-verify cobbler-import" do
-        code "cobbler distro report --name='#{new_resource.name}-#{new_resource.os_arch}'"
-      end
     end
 
     def cobbler_set_kernel(force_run = false)
@@ -184,7 +177,7 @@ class Chef
       # Arguments - force_run -- boolean as to if this should run without checking checksums
       Chef::Resource::RemoteFile.send(:include, Cobbler::Parse)
 
-      initrd_path = "#{node[:cobbler][:resource_storage]}/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.initrd)}"
+      initrd_path = "#{node[:cobblerd][:resource_storage]}/#{new_resource.name}-#{new_resource.os_arch}/#{::File.basename(new_resource.initrd)}"
 
       directory ::File.dirname(initrd_path) do
         action :create

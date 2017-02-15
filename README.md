@@ -96,5 +96,11 @@ Include `cobblerd` in your node's `run_list`:
 
 Author:: [Bloomberg Compute Architecture Group][2] (<compute@bloomberg.net>)
 
+### Maintainers
+
+To build and test, one can run the following (this done using ChefDK binaries):
+* `bundler package`
+* `kitchen verify '.*'`
+
 [1]: http://www.cobblerd.org
 [2]: http://www.bloomberglabs.com/compute-architecture/

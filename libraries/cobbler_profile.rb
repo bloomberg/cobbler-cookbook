@@ -4,6 +4,11 @@
 #
 # Copyright (C) 2014 Bloomberg Finance L.P.
 #
+begin
+  require 'poise'
+rescue LoadError
+end
+
 class Chef
   class Resource::CobblerProfile < Resource
     include Poise
@@ -43,20 +48,17 @@ class Chef
 
   class Provider::CobblerProfile < Provider
     include Poise
+    provides(:cobbler_profile) if respond_to?(:provides)
 
     def action_delete
       converge_by("deleting #{new_resource.name} into cobbler") do
-        notifying_block do
           cobbler_profile_delete
-        end
       end
     end
 
     def action_import
       converge_by("importing #{new_resource.name} into cobbler") do
-        notifying_block do
           cobbler_profile_add
-        end
       end
     end
 

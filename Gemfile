@@ -11,6 +11,7 @@ gem 'rubocop'
 group :integration, :test do
   gem 'test-kitchen'
   gem 'kitchen-vagrant'
+  gem 'kitchen-chef_zero_berks_env'
   gem 'serverspec'
   gem 'chefspec'
 end

@@ -14,7 +14,7 @@ cobbler_image 'ubuntu-12.04-minimal' do
   kernel 'http://archive.ubuntu.com/ubuntu/dists/precise-updates/main/installer-amd64/current/images/saucy-netboot/ubuntu-installer/amd64/linux'
   kernel_checksum '4664511047fc3d7d5d13be77a86141be05dca283b50a3a51fd3c0638ab72816d'
   initrd 'http://archive.ubuntu.com/ubuntu/dists/precise-updates/main/installer-amd64/current/images/saucy-netboot/ubuntu-installer/amd64/initrd.gz'
-  initrd_checksum '7f42b6f65bcf5099f69459d14a9b274fe392a2f25e25aba1f54e695cf4135ae3'
+  initrd_checksum 'dbc5dafc6a4eb5f0c22fe85a79185d3761b76871b6501d82043361d5f3cc8e6d'
   os_version 'precise'
   os_breed 'ubuntu'
 end

@@ -7,7 +7,7 @@ cdrom
 lang en_US.UTF-8
 keyboard us
 network --bootproto=dhcp
-rootpw --iscrypted <%= node[:cobbler][:ks][:root_password] %>
+rootpw --iscrypted <%= node[:cobblerd][:ks][:root_password] %>
 firewall --disabled
 selinux --permissive
 timezone UTC
@@ -24,7 +24,7 @@ reboot
 
 # Add a user at the time of kickstart. We use this for general access instead
 # of the root account for tenancies. It should have privileges via sudoers.
-user --name=<%= node[:cobbler][:ks][:username] %> --iscrypted --password <%= node[:cobbler][:ks][:user_password] %>
+user --name=<%= node[:cobblerd][:ks][:username] %> --iscrypted --password <%= node[:cobblerd][:ks][:user_password] %>
 
 %packages --nobase --ignoremissing --excludedocs
 openssh-server
