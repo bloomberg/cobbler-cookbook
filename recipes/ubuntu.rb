@@ -26,7 +26,7 @@ cobbler_image 'ubuntu-14.04-minimal' do
   os_breed 'ubuntu'
 end
 
-%w{ubuntu-12.04-minimal ubuntu-14.04-minimal}.each do |dist|
+%w(ubuntu-12.04-minimal ubuntu-14.04-minimal).each do |dist|
   cobbler_profile "#{profile}-#{dist}" do
     kickstart "#{profile}.preseed"
     distro "#{dist}-x86_64"

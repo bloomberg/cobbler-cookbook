@@ -8,12 +8,12 @@ include_recipe 'cobblerd::default'
 
 profile = 'redhat'
 
-#cobbler_image 'centos-7.3-1611-minimal' do
+# cobbler_image 'centos-7.3-1611-minimal' do
 #  source 'http://mirror.symnds.com/CentOS/7.3.1611/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso'
 #  checksum '27bd866242ee058b7a5754e83d8ee8403e216b93d130d800852a96f41c34d86a'
 #  os_breed 'redhat'
 #  os_version 'rhel7'
-#end
+# end
 
 cobbler_image 'centos-6.8-minimal' do
   source 'http://mirror.symnds.com/CentOS/6.8/isos/x86_64/CentOS-6.8-x86_64-minimal.iso'
@@ -22,8 +22,8 @@ cobbler_image 'centos-6.8-minimal' do
   os_version 'rhel6'
 end
 
-#%w{centos-7.3.1611-minimal centos-6.8-minimal}.each do |dist|
-%w{centos-6.8-minimal}.each do |dist|
+# %w{centos-7.3.1611-minimal centos-6.8-minimal}.each do |dist|
+%w(centos-6.8-minimal).each do |dist|
   cobbler_profile "#{profile}-#{dist}" do
     kickstart "#{profile}.ks"
     distro "#{dist}-x86_64"

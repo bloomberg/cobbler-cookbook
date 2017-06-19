@@ -8,7 +8,7 @@ include_recipe 'cobblerd::default'
 
 filename = File.join('/var/lib/cobbler/kickstarts', 'redhat.ks')
 template filename do
-  source 'redhat.cfg.erb'
+  source 'redhat.ks.erb'
   not_if { File.exist? filename }
 end
 

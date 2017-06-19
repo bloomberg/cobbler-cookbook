@@ -4,17 +4,15 @@
 #
 # Copyright (C) 2014 Bloomberg Finance L.P.
 #
-include_recipe 'yum-epel::default' if node[:platform_family] == "rhel"
-include_recipe 'apt::default' if node[:platform_family] == "debian"
+include_recipe 'yum-epel::default' if node['platform_family'] == 'rhel'
+include_recipe 'apt::default' if node['platform_family'] == 'debian'
 
 package 'cobbler'
 
 service 'cobbler' do
   case node['platform']
-    when 'centos','redhat','fedora'
-      if node['platform_version'].to_i >= 6
-        service_name 'cobblerd'
-      end
+  when 'centos', 'redhat', 'fedora', 'oracle'
+    service_name 'cobblerd' if node['platform_version'].to_i >= 6
   end
   action [:enable, :start]
   supports restart: true
