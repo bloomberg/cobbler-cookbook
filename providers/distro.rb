@@ -1,4 +1,4 @@
-# rubocop:disable Style/GuardClause
+# rubocop:disable Style/GuardClause,Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
 
 # Base Provider
 include Cobbler::Parse
@@ -32,6 +32,7 @@ end
 action :delete do
   if @current_resource.exists # Only delete if it exists.
     # Converge our node
+    Chef::Log.info("Distribution #{@current_resource.base_name} exists and will be removed")
     converge_by("Deleting Cobbler OS distro #{@new_resource.base_name}") do
       resp = delete
       # We set our updated flag based on the resource we utilized.
@@ -54,9 +55,11 @@ end
 #------------------------------------------------------------
 def load_current_resource
   if exists?(@new_resource.base_name)
+    Chef::Log.debug("New resource with name #{@new_resource.base_name} already exists")
     @current_resource = load_distro(@new_resource.base_name)
     @current_resource.exists = true
   else
+    Chef::Log.debug("New resource with name #{@new_resource.base_name} does not exist")
     @current_resource = @new_resource.clone
     @current_resource.exists = false
   end
@@ -71,10 +74,10 @@ def architectures
 end
 
 #------------------------------------------------------------
-# Defines the allowable breed for the repository type, used for input validation.
+# Defines the allowable breed, used for input validation.
 #------------------------------------------------------------
 def breeds
-  %w(rsync yum apt rhn wget)
+  %w(suse redhat windows xen generic unix freebsd ubuntu nexenta debian vmware)
 end
 
 #------------------------------------------------------------
@@ -104,56 +107,49 @@ end
 # Queries Cobbler to determine if a specific distribution exists.
 #------------------------------------------------------------
 def exists?(distro_name = nil)
+  Chef::Log.debug("Checking if distro '#{distro_name}' already exists")
   if distro_name.nil?
     false
   else
     find_command = "cobbler distro find --name=#{distro_name} | grep '#{distro_name}'"
+    Chef::Log.debug("Searching for '#{distro_name}' using #{find_command}")
     find = Mixlib::ShellOut.new(find_command)
     find.run_command
+    Chef::Log.debug("Standard out from 'distro find' is #{find.stdout.chomp}")
     # True if the value in stdout matches our distro_name
-    find.stdout == distro_name
+    (find.stdout.chomp == distro_name)
   end
 end
 
 #------------------------------------------------------------
-# Creates a new Cobbler repository if a repository with the same name does not already exist.
+# Creates a new Cobbler distro if a distro with the same name does not already exist.
 #------------------------------------------------------------
 def create
   unless architectures.include?(@new_resource.architecture)
     raise "The specified architecture (#{@new_resource.architecture}) is not one of #{architectures.join(',')}"
   end
 
-  unless breeds.include?(@new_resource.breed)
-    raise "The specified breed (#{@new_resource.breed}) is not one of #{breeds.join(',')}"
+  unless breeds.include?(@new_resource.os_breed)
+    raise "The specified breed (#{@new_resource.os_breed}) is not one of #{breeds.join(',')}"
   end
 
+  # TODO: Create a command builder library.
   # Setup command with known required attributes
   distro_command = "cobbler distro add --name=#{@new_resource.base_name}"
   distro_command = "#{distro_command} --owners='#{@new_resource.owners.join(',')}'"
   distro_command = "#{distro_command} --kernel=#{@new_resource.kernel} --initrd=#{@new_resource.initrd}"
   distro_command = "#{distro_command} --arch=#{@new_resource.architecture}"
-  distro_command = "#{distro_command} --breed=#{@new_resource.breed}"
-  distro_command = "#{distro_command} --os_version=#{@new_resource.os_version}"
-  distro_command = "#{distro_command} --in-place='#{@new_resource.in_place}'"
+  distro_command = "#{distro_command} --breed=#{@new_resource.os_breed}"
+  distro_command = "#{distro_command} --os-version=#{@new_resource.os_version}"
+  distro_command = "#{distro_command} --in-place" if @new_resource.in_place
 
   # Parameters that are not required, add them only if they are specified.
-  unless @new_resource.comment.nil?
-    distro_command = "#{distro_command} --comment='#{@new_resource.comment}'"
-  end
+  distro_command = "#{distro_command} --comment='#{@new_resource.comment}'" unless @new_resource.comment.nil?
+  distro_command = "#{distro_command} --ctime='#{@new_resource.ctime}'" unless @new_resource.ctime.nil?
+  distro_command = "#{distro_command} --mtime=#{@new_resource.mtime.join(',')}" unless @new_resource.mtime.nil?
+  distro_command = "#{distro_command} --uid='#{@new_resource.uid}'" unless @new_resource.uid.nil?
 
-  # Only applicable for YUM based repositories
-  unless @new_resource.ctime.nil?
-    distro_command = "#{distro_command} --ctime='#{@new_resource.ctime}'"
-  end
-
-  unless @new_resource.mtime.nil?
-    distro_command = "#{distro_command} --mtime=#{@new_resource.mtime.join(',')}"
-  end
-
-  unless @new_resource.uid.nil?
-    distro_command = "#{distro_command} --uid='#{@new_resource.uid}'"
-  end
-
+  # Using this style to avoid Rubocop 'Metrics/LineLength' complaint
   unless @new_resource.kernel_options.nil?
     distro_command = "#{distro_command} --kopts='#{@new_resource.kernel_options.join(',')}'"
   end
@@ -170,9 +166,7 @@ def create
     distro_command = "#{distro_command} --source-repos='#{@new_resource.source_repos.join(',')}'"
   end
 
-  unless @new_resource.depth.nil?
-    distro_command = "#{distro_command} --depth='#{@new_resource.depth}'"
-  end
+  distro_command = "#{distro_command} --depth='#{@new_resource.depth}'" unless @new_resource.depth.nil?
 
   unless @new_resource.tree_build_time.nil?
     distro_command = "#{distro_command} --tree-build-time='#{@new_resource.tree_build_time}'"
@@ -182,9 +176,13 @@ def create
     distro_command = "#{distro_command} --mgmt-classes='#{@new_resource.mgmt_classes}'"
   end
 
-  unless @new_resource.boot_files.nil?
-    distro_command = "#{distro_command} --boot-files='#{@new_resource.boot_files}'"
+  boot_files = []
+  @new_resource.boot_files.each do |ent|
+    ent.each_pair do |k, v|
+      boot_files << "'#{k}'='#{v}'"
+    end
   end
+  distro_command = "#{distro_command} --boot-files=#{boot_files.join(',')}" unless @new_resource.boot_files.nil?
 
   unless @new_resource.fetchable_files.nil?
     distro_command = "#{distro_command} --fetchable-files='#{@new_resource.fetchable_files}'"
@@ -201,11 +199,9 @@ def create
   unless @new_resource.redhat_management_server.nil?
     distro_command = "#{distro_command} --redhat-management-server='#{@new_resource.redhat_management_server}'"
   end
-
   distro_command = "#{distro_command} --clobber" if @new_resource.clobber
 
   Chef::Log.debug "Will add new OS distro using the command '#{distro_command}'"
-  Chef::Log.info "Adding the #{@new_resource.base_name} OS distro"
   bash "#{@new_resource.base_name}-cobbler-distro-add" do
     code <<-CODE
       #{distro_command}
@@ -213,26 +209,48 @@ def create
     umask 0o0002
   end
 
-  # Return the state of the repository; if it does not exist, nothing was added.
+  # Return the state of the distro; if it does not exist, nothing was added.
   exists?(@new_resource.base_name)
 end
 
 #------------------------------------------------------------
-# Deletes an existing Cobbler repository.
+# Deletes an existing Cobbler distro.
 #------------------------------------------------------------
 def delete
-  # Setup command with known required attributes. Since only name is required to delete, that is all we're using.
-  distro_command = "cobbler distro delete --name=#{@current_resource.base_name}"
+  # Attempting to delete a distro on which one or more profiles depends will result in an error such as:
+  # 'removal would orphan profile: something'
+  if dependencies?
+    Chef::Log.error("Cannot remove the distro #{@current_resource.base_name} because it has dependencies")
+  else
+    # Setup command with known required attributes. Since only name is required to delete, that is all we're using.
+    distro_command = "cobbler distro remove --name=#{@current_resource.base_name}"
 
-  Chef::Log.debug "Will delete existing OS distro using the command '#{distro_command}'"
-  Chef::Log.info "Adding the #{@current_resource.base_name} OS distro"
-  bash "#{@current_resource.base_name}-cobbler-distro-delete" do
-    code <<-CODE
-      #{distro_command}
-    CODE
-    umask 0o0002
+    Chef::Log.debug "Will delete existing OS distro using the command '#{distro_command}'"
+    bash "#{@current_resource.base_name}-cobbler-distro-remove" do
+      code <<-CODE
+        #{distro_command}
+      CODE
+      umask 0o0002
+    end
   end
 
-  # Return the state of the repository; if it does not exist, then it was deleted.
+  # Return the state of the distro; if it does not exist, then it was deleted.
   !exists?(@current_resource.base_name)
+end
+
+#------------------------------------------------------------
+# Determines if any other objects have dependencies on the current resource. Used when deleting existing resources.
+#------------------------------------------------------------
+def dependencies?
+  deps_command = "cobbler profile find --distro='#{@current_resource.base_name}' | wc -l"
+
+  Chef::Log.debug "Searching for profiles with a dependency on the distro '#{@current_resource.base_name}'"
+  find = Mixlib::ShellOut.new(deps_command)
+  find.run_command
+
+  Chef::Log.debug("Standard out from 'profile file --distro=#{@current_resource.base_name}' is #{find.stdout.chomp}")
+  # True if the value in stdout matches our distro_name
+  result = find.stdout.chomp.to_i
+
+  (result > 0)
 end

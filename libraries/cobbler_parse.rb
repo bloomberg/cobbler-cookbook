@@ -3,103 +3,133 @@ module Cobbler
   module Parse
     include Chef::Mixin::ShellOut
 
-    DISTRO_FIELDS = {
-      'Name' => 'base_name',
-      'Architecture' => 'architecture',
-      # Parse as JSON
-      'TFTP Boot Files' => 'boot_files',
-      'Breed' => 'breed',
-      'Comment' => 'comment',
-      # Parse as JSON
-      'Fetchable Files' => 'fetchable_files',
-      'Initrd' => 'initrd',
-      'Kernel' => 'kernel',
-      # Parse as JSON
-      'Kernel Options' => 'kernel_options',
-      # Parse as JSON
-      'Kernel Options (Post Install)' => 'kernel_options_postinstall',
-      # Parse as JSON
-      'Kickstart Metadata' => 'kickstart_meta',
-      # Strip braces and parse as CSV
-      'Management Classes' => 'mgmt_classes',
-      'OS Version' => 'os_version',
-      # Strip braces and parse as CSV
-      'Owners' => 'owners',
-      'Red Hat Management Key' => 'redhat_management_key',
-      'Red Hat Management Server' => 'redhat_management_server',
-      # Parse as JSON
-      'Template Files' => 'template_files'
-    }.freeze
+    unless defined? DISTRO_FIELDS
+      DISTRO_FIELDS = {
+        'Name' => { attribute: 'base_name', type: 'string' },
+        'Architecture' => { attribute: 'architecture', type: 'string' },
+        # Parse as JSON
+        'TFTP Boot Files' => { attribute: 'boot_files', type: 'hash' },
+        'Breed' => { attribute: 'os_breed', type: 'string' },
+        'Comment' => { attribute: 'comment', type: 'string' },
+        # Parse as JSON
+        'Fetchable Files' => { attribute: 'fetchable_files', type: 'hash' },
+        'Initrd' => { attribute: 'initrd', type: 'string' },
+        'Kernel' => { attribute: 'kernel', type: 'string' },
+        # Parse as JSON
+        'Kernel Options' => { attribute: 'kernel_options', type: 'hash' },
+        # Parse as JSON
+        'Kernel Options (Post Install)' => { attribute: 'kernel_options_postinstall', type: 'hash' },
+        # Parse as JSON
+        'Kickstart Metadata' => { attribute: 'kickstart_meta', type: 'hash' },
+        # Strip braces and parse as CSV
+        'Management Classes' => { attribute: 'mgmt_classes', type: 'array' },
+        'OS Version' => { attribute: 'os_version', type: 'string' },
+        # Strip braces and parse as CSV
+        'Owners' => { attribute: 'owners', type: 'array' },
+        'Red Hat Management Key' => { attribute: 'redhat_management_key', type: 'string' },
+        'Red Hat Management Server' => { attribute: 'redhat_management_server', type: 'string' },
+        # Parse as JSON
+        'Template Files' => { attribute: 'template_files', type: 'hash' }
+      }.freeze
+    end
 
-    IMAGE_FIELDS = {
-      'Name' => 'base_name',
-      'Architecture' => 'architecture',
-      'Breed' => 'breed',
-      'Comment' => 'comment',
-      'File' => 'file',
-      'Image Type' => 'image_type',
-      'Kickstart' => 'kickstart',
-      'Virt NICs' => 'virtual_nics',
-      'OS Version' => 'os_version',
-      # Strip braces and parse as CSV
-      'Owners' => 'owners',
-      'Parent' => 'parent',
-      'Virt Auto Boot' => 'auto_boot',
-      'Virt Bridge' => 'bridge',
-      'Virt CPUs' => 'cpus',
-      'Virt Disk Driver Type' => 'disk_driver_type',
-      'Virt File Size (GB)' => 'disk_size',
-      'Virt Path' => 'disk_path',
-      'Virt RAM (MB)' => 'ram',
-      'Virt Type' => 'virtualization_type'
-    }.freeze
+    unless defined? IMAGE_FIELDS
+      IMAGE_FIELDS = {
+        'Name' => { attribute: 'base_name', type: 'string' },
+        'Architecture' => { attribute: 'architecture', type: 'string' },
+        'Breed' => { attribute: 'os_breed', type: 'string' },
+        'Comment' => { attribute: 'comment', type: 'string' },
+        'File' => { attribute: 'source', type: 'string' },
+        'Image Type' => { attribute: 'image_type', type: 'string' },
+        'Kickstart' => { attribute: 'kickstart', type: 'string' },
+        'Virt NICs' => { attribute: 'network_count', type: 'string' },
+        'OS Version' => { attribute: 'os_version', type: 'string' },
+        # Strip braces and parse as CSV
+        'Owners' => { attribute: 'owners', type: 'array' },
+        'Parent' => { attribute: 'parent', type: 'string' },
+        'Virt Auto Boot' => { attribute: 'auto_boot', type: 'boolean' },
+        'Virt Bridge' => { attribute: 'bridge', type: 'string' },
+        'Virt CPUs' => { attribute: 'cpus', type: 'string' },
+        'Virt Disk Driver Type' => { attribute: 'disk_driver_type', type: 'string' },
+        'Virt File Size (GB)' => { attribute: 'disk_size', type: 'string' },
+        'Virt Path' => { attribute: 'disk_path', type: 'string' },
+        'Virt RAM (MB)' => { attribute: 'ram', type: 'string' },
+        'Virt Type' => { attribute: 'virtualization_type', type: 'string' }
+      }.freeze
+    end
 
-    PROFILE_FIELDS = {
-      'Name' => 'base_name',
-      # Parse as JSON
-      'TFTP Boot Files' => 'boot_files',
-      'Comment' => 'comment',
-      'DHCP Tag' => 'dhcp_tag',
-      'Distribution' => 'distribution',
-      'Enable gPXE?' => 'enable_gpxe',
-      'Enable PXE Menu?' => 'enable_pxe_menu',
-      # Parse as JSON
-      'Fetchable Files' => 'fetchable_files',
-      # Parse as JSON
-      'Kernel Options' => 'kernel_options',
-      # Parse as JSON
-      'Kernel Options (Post Install)' => 'kernel_options_postinstall',
-      # Parse as JSON
-      'Kickstart Metadata' => 'kickstart_meta',
-      # Strip braces and parse as CSV
-      'Management Classes' => 'mgmt_classes',
-      'Management Parameters' => 'mgmt_parameters',
-      # Strip braces and parse as CSV
-      'Name Servers' => 'name_servers',
-      'Name Servers Search Path' => 'name_servers_search_path',
-      # Strip braces and parse as CSV
-      'Owners' => 'owners',
-      'Parent Profile' => 'parent_profile',
-      'Internal Proxy' => 'internal_proxy',
-      'Red Hat Management Key' => 'redhat_management_key',
-      'Red Hat Management Server' => 'redhat_management_server',
-      'Repos' => 'repos',
-      'Server Override' => 'server_override',
-      # Parse as JSON
-      'Template Files' => 'template_files',
-      'Virt Auto Boot' => 'auto_boot',
-      'Virt Bridge' => 'bridge',
-      'Virt CPUs' => 'cpus',
-      'Virt Disk Driver Type' => 'disk_driver_type',
-      'Virt File Size (GB)' => 'disk_size',
-      'Virt Path' => 'disk_path',
-      'Virt RAM (MB)' => 'ram',
-      'Virt Type' => 'virtualization_type'
-    }.freeze
+    unless defined? PROFILE_FIELDS
+      PROFILE_FIELDS = {
+        'Name' => { attribute: 'base_name', type: 'string' },
+        # Parse as JSON
+        'TFTP Boot Files' => { attribute: 'boot_files', type: 'hash' },
+        'Comment' => { attribute: 'comment', type: 'string' },
+        'DHCP Tag' => { attribute: 'dhcp_tag', type: 'string' },
+        'Distribution' => { attribute: 'distro', type: 'string' },
+        'Enable gPXE?' => { attribute: 'enable_gpxe', type: 'string' },
+        'Enable PXE Menu?' => { attribute: 'enable_pxe_menu', type: 'string' },
+        # Parse as JSON
+        'Fetchable Files' => { attribute: 'fetchable_files', type: 'hash' },
+        # Parse as JSON
+        'Kernel Options' => { attribute: 'kernel_options', type: 'hash' },
+        # Parse as JSON
+        'Kernel Options (Post Install)' => { attribute: 'kernel_options_postinstall', type: 'hash' },
+        # Parse as JSON
+        'Kickstart Metadata' => { attribute: 'kickstart_meta', type: 'hash' },
+        # Strip braces and parse as CSV
+        'Management Classes' => { attribute: 'mgmt_classes', type: 'array' },
+        'Management Parameters' => { attribute: 'mgmt_parameters', type: 'string' },
+        # Strip braces and parse as CSV
+        'Name Servers' => { attribute: 'name_servers', type: 'array' },
+        'Name Servers Search Path' => { attribute: 'name_servers_search_path', type: 'string' },
+        # Strip braces and parse as CSV
+        'Owners' => { attribute: 'owners', type: 'array' },
+        'Parent Profile' => { attribute: 'parent_profile', type: 'string' },
+        'Internal Proxy' => { attribute: 'internal_proxy', type: 'string' },
+        'Red Hat Management Key' => { attribute: 'redhat_management_key', type: 'string' },
+        'Red Hat Management Server' => { attribute: 'redhat_management_server', type: 'string' },
+        'Repos' => { attribute: 'repos', type: 'array' },
+        'Server Override' => { attribute: 'server_override', type: 'string' },
+        # Parse as JSON
+        'Template Files' => { attribute: 'template_files', type: 'hash' },
+        'Virt Auto Boot' => { attribute: 'auto_boot', type: 'string' },
+        'Virt Bridge' => { attribute: 'bridge', type: 'string' },
+        'Virt CPUs' => { attribute: 'cpus', type: 'string' },
+        'Virt Disk Driver Type' => { attribute: 'disk_driver_type', type: 'string' },
+        'Virt File Size (GB)' => { attribute: 'disk_size', type: 'string' },
+        'Virt Path' => { attribute: 'disk_path', type: 'string' },
+        'Virt RAM (MB)' => { attribute: 'ram', type: 'string' },
+        'Virt Type' => { attribute: 'virtualization_type', type: 'string' }
+      }.freeze
+    end
 
-    SYSTEM_FIELDS = {
-    }.freeze
+    unless defined? REPOSITORY_FIELDS
+      REPOSITORY_FIELDS = {
+        'Name' => { attribute: 'base_name', type: 'string' },
+        'Owners' => { attribute: 'owners', type: 'array' },
+        'Arch' => { attribute: 'architecture', type: 'string' },
+        'Breed' => { attribute: 'os_breed', type: 'string' },
+        'Mirror' => { attribute: 'mirror_url', type: 'string' },
+        'Comment' => { attribute: 'comment', type: 'string' },
+        'Keep Updated' => { attribute: 'keep_updated', type: 'boolean' },
+        'RPM List' => { attribute: 'rpm_list', type: 'array' },
+        'External proxy URL' => { attribute: 'proxy_url', type: 'string' },
+        'Apt Components (apt only)' => { attribute: 'apt_components', type: 'string' },
+        'Apt Dist Names (apt only)' => { attribute: 'apt_dist_names', type: 'string' },
+        'Createrepo Flags' => { attribute: 'createrepo_flags', type: 'string' },
+        'Environment Variables' => { attribute: 'env_variables', type: 'hash' },
+        'Mirror locally' => { attribute: 'mirror_locally', type: 'boolean' },
+        'Priority' => { attribute: 'priority', type: 'string' },
+        'Yum Options' => { attribute: 'yum_options', type: 'hash' }
+      }.freeze
+    end
 
+    unless defined? SYSTEM_FIELDS
+      SYSTEM_FIELDS = {
+      }.freeze
+    end
+
+    # Load the details for an existing distro from the Cobbler system
     def load_distro(distro)
       shellout = Mixlib::ShellOut.new("cobbler distro report --name='#{distro}'")
       shellout.run_command
@@ -109,22 +139,42 @@ module Cobbler
       Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
 
       resource = Chef::Resource::CobblerdDistro.new(distro)
-      raw_info = shellout.stdout
+      raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
         parts = line_item.split(':')
         parts[0].strip!
         parts[1].strip!
 
-        if DISTRO_FIELDS.key?(parts[0])
-          field_name = DISTRO_FIELDS[parts[0]]
-          resource.send("#{field_name}=", parts[1])
-        end
+        next unless DISTRO_FIELDS.key?(parts[0])
+        field_name = DISTRO_FIELDS[parts[0]][:attribute]
+        value = case DISTRO_FIELDS[parts[0]][:type]
+                when 'hash'
+                  # Parse as JSON
+                  JSON.parse(parts[1])
+                when 'array'
+                  if parts[1] == '[]'
+                    nil
+                  else
+                    # Strip braces and parse as CSV
+                    parts[1][1..-1].split(',')
+                  end
+                when 'boolean'
+                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
+                    true
+                  else
+                    false
+                  end
+                else
+                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
+                end
+        resource.send("#{field_name}=", value)
       end
 
       resource
     end
 
+    # Load the details for an existing image from the Cobbler system
     def load_image(image)
       shellout = Mixlib::ShellOut.new("cobbler image report --name='#{image}'")
       shellout.run_command
@@ -134,22 +184,42 @@ module Cobbler
       Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
 
       resource = Chef::Resource::CobblerdImage.new(image)
-      raw_info = shellout.stdout
+      raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
         parts = line_item.split(':')
         parts[0].strip!
         parts[1].strip!
 
-        if IMAGE_FIELDS.key?(parts[0])
-          field_name = IMAGE_FIELDS[parts[0]]
-          resource.send("#{field_name}=", parts[1])
-        end
+        next unless IMAGE_FIELDS.key?(parts[0])
+        field_name = IMAGE_FIELDS[parts[0]][:attribute]
+        value = case IMAGE_FIELDS[parts[0]][:type]
+                when 'hash'
+                  # Parse as JSON
+                  JSON.parse(parts[1])
+                when 'array'
+                  if parts[1] == '[]'
+                    nil
+                  else
+                    # Strip braces and parse as CSV
+                    parts[1][1..-1].split(',')
+                  end
+                when 'boolean'
+                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
+                    true
+                  else
+                    false
+                  end
+                else
+                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
+                end
+        resource.send("#{field_name}=", value)
       end
 
       resource
     end
 
+    # Load the details for an existing profile from the Cobbler system
     def load_profile(profile)
       shellout = Mixlib::ShellOut.new("cobbler profile report --name='#{profile}'")
       shellout.run_command
@@ -159,17 +229,36 @@ module Cobbler
       Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
 
       resource = Chef::Resource::CobblerdProfile.new(image)
-      raw_info = shellout.stdout
+      raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
         parts = line_item.split(':')
         parts[0].strip!
         parts[1].strip!
 
-        if PROFILE_FIELDS.key?(parts[0])
-          field_name = PROFILE_FIELDS[parts[0]]
-          resource.send("#{field_name}=", parts[1])
-        end
+        next unless PROFILE_FIELDS.key?(parts[0])
+        field_name = PROFILE_FIELDS[parts[0]][:attribute]
+        value = case PROFILE_FIELDS[parts[0]][:type]
+                when 'hash'
+                  # Parse as JSON
+                  JSON.parse(parts[1])
+                when 'array'
+                  if parts[1] == '[]'
+                    nil
+                  else
+                    # Strip braces and parse as CSV
+                    parts[1][1..-1].split(',')
+                  end
+                when 'boolean'
+                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
+                    true
+                  else
+                    false
+                  end
+                else
+                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
+                end
+        resource.send("#{field_name}=", value)
       end
 
       resource
@@ -184,17 +273,36 @@ module Cobbler
       Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
 
       resource = Chef::Resource::CobblerdRepo.new(repo)
-      raw_info = shellout.stdout
+      raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
         parts = line_item.split(':')
         parts[0].strip!
         parts[1].strip!
 
-        if REPOSITORY_FIELDS.key?(parts[0])
-          field_name = REPOSITORY_FIELDS[parts[0]]
-          resource.send("#{field_name}=", parts[1])
-        end
+        next unless REPOSITORY_FIELDS.key?(parts[0])
+        field_name = REPOSITORY_FIELDS[parts[0]][:attribute]
+        value = case REPOSITORY_FIELDS[parts[0]][:type]
+                when 'hash'
+                  # Parse as JSON
+                  JSON.parse(parts[1])
+                when 'array'
+                  if parts[1] == '[]'
+                    nil
+                  else
+                    # Strip braces and parse as CSV
+                    parts[1][1..-1].split(',')
+                  end
+                when 'boolean'
+                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
+                    true
+                  else
+                    false
+                  end
+                else
+                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
+                end
+        resource.send("#{field_name}=", value)
       end
 
       resource
@@ -209,17 +317,37 @@ module Cobbler
       Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
 
       resource = Chef::Resource::CobblerdSystem.new(system)
-      raw_info = shellout.stdout
+      raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
         parts = line_item.split(':')
         parts[0].strip!
         parts[1].strip!
 
-        if SYSTEM_FIELDS.key?(parts[0])
-          field_name = SYSTEM_FIELDS[parts[0]]
-          resource.send("#{field_name}=", parts[1])
-        end
+        next unless SYSTEM_FIELDS.key?(parts[0])
+        field_name = SYSTEM_FIELDS[parts[0]][:attribute]
+        value = case SYSTEM_FIELDS[parts[0]][:type]
+                when 'hash'
+                  # Parse as JSON
+                  JSON.parse(parts[1])
+                when 'array'
+                  if parts[1] == '[]'
+                    nil
+                  else
+                    # Strip braces and parse as CSV
+                    parts[1][1..-1].split(',')
+                  end
+                when 'boolean'
+                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
+                    true
+                  else
+                    false
+                  end
+                else
+                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
+                end
+
+        resource.send("#{field_name}=", value)
       end
 
       resource

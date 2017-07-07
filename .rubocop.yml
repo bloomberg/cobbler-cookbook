@@ -1,5 +1,6 @@
 ---
-# inherit_from: .rubocop_todo.yml
+# TODO: Fix code so that this file can be removed.
+
 AllCops:
   Exclude:
     - 'Vagrantfile'
@@ -18,11 +19,23 @@ Encoding:
 LineLength:
   Max: 120
 
+Metrics/AbcSize:
+  Max: 50
+
+Metrics/BlockLength:
+  Max: 50
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
 Metrics/ModuleLength:
-  Max: 250
+  Max: 500
 
 Metrics/MethodLength:
-  Max: 30
+  Max: 75
+
+Metrics/PerceivedComplexity:
+  Max: 15
 
 StringLiterals:
   Enabled: false

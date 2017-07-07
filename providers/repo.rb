@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/AbcSize
+
 # Base Provider
 include Cobbler::Parse
 
@@ -79,13 +81,16 @@ end
 # Queries Cobbler to determine if a specific repository exists.
 #------------------------------------------------------------
 def exists?(repo_name = nil)
+  Chef::Log.debug("Checking if repo '#{repo_name}' already exists")
   if repo_name.nil?
     false
   else
     find_command = "cobbler repo find --name=#{repo_name} | grep '#{repo_name}'"
+    Chef::Log.debug("Searching for '#{repo_name}' using #{find_command}")
     find = Mixlib::ShellOut.new(find_command)
     find.run_command
-    find.stdout == repo_name
+    Chef::Log.debug("Standard out from 'repo find' is #{find.stdout.chomp}")
+    (find.stdout.chomp == repo_name)
   end
 end
 
@@ -97,14 +102,14 @@ def create
     raise "The specified architecture (#{@new_resource.architecture}) is not one of #{architectures.join(',')}"
   end
 
-  unless breeds.include?(@new_resource.breed)
-    raise "The specified breed (#{@new_resource.breed}) is not one of #{breeds.join(',')}"
+  unless breeds.include?(@new_resource.os_breed)
+    raise "The specified breed (#{@new_resource.os_breed}) is not one of #{breeds.join(',')}"
   end
 
   # Setup command with known required attributes
   repo_command = "cobbler repo add --name=#{@new_resource.base_name}"
   repo_command = "#{repo_command} --owners='#{@new_resource.owners.join(',')}'"
-  repo_command = "#{repo_command} --arch=#{@new_resource.architecture} --breed=#{@new_resource.breed}"
+  repo_command = "#{repo_command} --arch=#{@new_resource.architecture} --breed=#{@new_resource.os_breed}"
   repo_command = "#{repo_command} --mirror=#{@new_resource.mirror_url}"
   repo_command = "#{repo_command} --keep-updated=#{@new_resource.keep_updated}"
   repo_command = "#{repo_command} --mirror-locally=#{@new_resource.mirror_locally}"
@@ -115,7 +120,7 @@ def create
   end
 
   # Only applicable for YUM based repositories
-  unless @new_resource.rpm_list.nil? || @new_resource.breed != 'yum'
+  unless @new_resource.rpm_list.nil? || @new_resource.os_breed != 'yum'
     repo_command = "#{repo_command} --rpm-list='#{@new_resource.rpm_list.join(',')}'"
   end
 
@@ -167,7 +172,7 @@ end
 #------------------------------------------------------------
 def delete
   # Setup command with known required attributes. Since only name is required to delete, that is all we're using.
-  repo_command = "cobbler repo delete --name=#{@current_resource.base_name}"
+  repo_command = "cobbler repo remove --name=#{@current_resource.base_name}"
 
   Chef::Log.debug "Will delete existing repository using the command '#{repo_command}'"
   Chef::Log.info "Adding the #{@current_resource.base_name} repository"

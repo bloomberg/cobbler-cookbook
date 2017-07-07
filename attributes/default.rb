@@ -26,3 +26,13 @@ node.default['cobblerd']['distro']['reserved_words']['bare_words'] = %w(-- -amd6
 node.default['cobblerd']['distro']['reserved_words']['arch'] = %w(i386 x86_64 ia64 ppc64 ppc32 ppc x86 s390x s390
                                                                   386 amd arm)
 node.default['cobblerd']['distro']['reserved_words']['separators'] = %w(- _ .)
+
+node.default['cobblerd']['image']['reserved_words']['bare_words'] = %w(-- -amd64 -boot chrp -i386 -images -install
+                                                                       -isolinux ks_mirror- -loader -netboot -os
+                                                                       -pxeboot srv-www-cobbler- -tree
+                                                                       -ubuntu-installer var-www-cobbler-)
+
+# reserved arches and separators found via grep -B2 -h 'name.replace(%s%s' /usr/lib/python2.7/dist-packages/cobbler/modules/*
+node.default['cobblerd']['image']['reserved_words']['arch'] = %w(i386 x86_64 ia64 ppc64 ppc32 ppc x86 s390x s390
+                                                                 386 amd arm)
+node.default['cobblerd']['image']['reserved_words']['separators'] = %w(- _ .)

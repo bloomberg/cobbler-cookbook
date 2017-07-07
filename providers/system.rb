@@ -53,10 +53,65 @@ end
 #------------------------------------------------------------
 def load_current_resource
   if exists?(@new_resource.base_name)
-    @current_resource = load_repo(@new_resource.base_name)
+    @current_resource = load_system(@new_resource.base_name)
     @current_resource.exists = true
   else
     @current_resource = @new_resource.clone
     @current_resource.exists = false
   end
+end
+
+#------------------------------------------------------------
+# Queries Cobbler to determine if a specific image exists.
+#------------------------------------------------------------
+def exists?(system_name = nil)
+  Chef::Log.debug("Checking if system '#{system_name}' already exists")
+  if system_name.nil?
+    false
+  else
+    find_command = "cobbler system find --name=#{system_name} | grep '#{system_name}'"
+    Chef::Log.info("Searching for '#{system_name}' using #{find_command}")
+    find = Mixlib::ShellOut.new(find_command)
+    find.run_command
+    Chef::Log.info("Standard out from 'system find' is #{find.stdout.chomp}")
+    (find.stdout.chomp == system_name)
+  end
+end
+
+#------------------------------------------------------------
+# Create a Cobbler system definition if it doesn't exist.
+#------------------------------------------------------------
+def create
+  # Setup command with known required attributes. Since only name is required to delete, that is all we're using.
+  system_command = "cobbler system add --name=#{@current_resource.base_name}"
+
+  Chef::Log.debug "Will add a new system using the command '#{system_command}'"
+  bash "#{@current_resource.base_name}-cobbler-system-create" do
+    code <<-CODE
+      #{system_command}
+    CODE
+    umask 0o0002
+  end
+
+  # Return the state of the repository; if it does not exist, then it was deleted.
+  !exists?(@current_resource.base_name)
+end
+
+#------------------------------------------------------------
+# Delete a Cobbler system definition if it exists.
+#------------------------------------------------------------
+def delete
+  # Setup command with known required attributes. Since only name is required to delete, that is all we're using.
+  system_command = "cobbler system remove --name=#{@current_resource.base_name}"
+
+  Chef::Log.debug "Will delete existing system using the command '#{system_command}'"
+  bash "#{@current_resource.base_name}-cobbler-system-delete" do
+    code <<-CODE
+      #{system_command}
+    CODE
+    umask 0o0002
+  end
+
+  # Return the state of the repository; if it does not exist, then it was deleted.
+  !exists?(@current_resource.base_name)
 end

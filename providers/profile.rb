@@ -1,5 +1,3 @@
-# rubocop:disable Style/GuardClause
-
 # Base Provider
 include Cobbler::Parse
 
@@ -9,7 +7,7 @@ include Cobbler::Parse
 use_inline_resources
 
 # Create Action
-action :import do
+action :create do
   # Only create if it does not exist.
   if @current_resource.exists
     Chef::Log.error "A profile named #{@new_resource.name} already exists. Not creating."
@@ -17,9 +15,9 @@ action :import do
     # raise "Our file already exists."
   else
     # Converge our node
-    converge_by("Importing profile #{@new_resource.base_name}.") do
+    converge_by("Creating a profile #{@new_resource.base_name}.") do
       # TODO: Set the default value of @new_resource.kickstart to source_default only if kickstart is nil
-      resp = import
+      resp = create
       # We set our updated flag based on the resource we utilized.
       @new_resource.updated_by_last_action(resp)
     end
@@ -40,16 +38,23 @@ action :delete do
   end
 end
 
+#------------------------------------------------------------
+# Support Simulated Runs
+#------------------------------------------------------------
 def whyrun_supported?
   true
 end
 
+#------------------------------------------------------------
 # Override Load Current Resource
+#------------------------------------------------------------
 def load_current_resource
   if exists?(@new_resource.base_name)
+    Chef::Log.debug("New resource with name #{@new_resource.base_name} already exists")
     @current_resource = load_profile(@new_resource.base_name)
     @current_resource.exists = true
   else
+    Chef::Log.debug("New resource with name #{@new_resource.base_name} does not exist")
     @current_resource = @new_resource.clone
     @current_resource.exists = false
   end
@@ -63,14 +68,16 @@ end
 #------------------------------------------------------------
 # Queries Cobbler to determine if a specific image exists.
 #------------------------------------------------------------
-def exists?(image_name = nil)
-  if repo_name.nil?
+def exists?(profile_name = nil, distro_name = nil)
+  if profile_name.nil? || distro_name.nil?
     false
   else
-    find_command = "cobbler repo find --name=#{image_name} | grep '#{image_name}'"
+    find_command = "cobbler profile find --name=#{profile_name} --distro=#{distro_name} | grep '#{profile_name}'"
+    Chef::Log.info("Searching for '#{profile_name}' using #{find_command}")
     find = Mixlib::ShellOut.new(find_command)
     find.run_command
-    find.stdout == repo_name
+    Chef::Log.info("Standard out from 'profile find' is #{find.stdout.chomp}")
+    (find.stdout.chomp == profile_name)
   end
 end
 
@@ -82,7 +89,7 @@ def cobbler_add_command
   command = "#{command} --distro='#{@new_resource.distro}'"
   command = "#{command} --kickstart='#{@new_resource.kickstart}'"
 
-  unless new_resource.kernel_options.empy?
+  unless new_resource.kernel_options.empty?
     command = "#{command} --kopts='#{new_resource.kernel_options.map { |k, v| "#{k}=#{v}" }.join(' ')}'"
   end
 
@@ -95,43 +102,39 @@ def cobbler_add_command
     km = new_resource.kickstart_meta.map { |k, v| "#{k}=#{v}" }.join(' ')
     command = "#{command} --kickstart-meta='#{km}'"
   end
+
+  Chef::Log.info("Final profile add command is #{command}")
+  command
 end
 
 #------------------------------------------------------------
 # Creates a new profile if it does not exist.
 #------------------------------------------------------------
 def create
-  template "/var/lib/cobbler/kickstarts/#{new_resource.name}" do
+  template "/var/lib/cobbler/kickstarts/#{new_resource.base_name}" do
     source "#{new_resource.kickstart}.erb"
     action :create
+    not_if { new_resource.kickstart.nil? }
   end
 
-  bash "#{new_resource.name}-cobbler-profile-add" do
-    code <<-CODE
-      #{cobbler_add_command}
-    CODE
+  bash "#{new_resource.base_name}-cobbler-profile-add" do
+    code cobbler_add_command
     umask 0o0002
     notifies :run, 'bash[cobbler-sync]', :delayed
-    not_if "#{profile_find_command} | grep -q '^#{new_resource.name}$'"
+    not_if { exists?(new_resource.base_name, new_resource.distro) }
   end
 
-  bash "#{new_resource.name}-verify cobbler-profile-add" do
-    code "#{profile_find_command} | grep -q '^#{new_resource.name}$'"
-  end
+  exists?(new_resource.base_name, new_resource.distro)
 end
 
 #------------------------------------------------------------
 # Deletes an existing profile.
 #------------------------------------------------------------
 def delete
-  name_option = "--name='#{new_resource.name}'"
-  distro_option = "--distro='#{new_resource.distro}'"
-  profile_find_command = "cobbler profile find #{name_option} #{distro_option}"
-
   bash "#{new_resource.name}-cobbler-profile-delete" do
     code "cobbler profile remove --name='#{new_resource.name}'"
     notifies :run, 'bash[cobbler-sync]', :delayed
-    only_if "#{profile_find_command} | grep -q '^#{new_resource.name}$'"
+    only_if { exists?(new_resource.base_name, new_resource.distro) }
   end
 
   file "/var/lib/cobbler/kickstarts/#{new_resource.name}" do
@@ -139,8 +142,5 @@ def delete
     only_if { ::File.exist? "/var/lib/cobbler/kickstarts/#{new_resource.name}" }
   end
 
-  bash "#{new_resource.name}-verify cobbler-profile-delete" do
-    code "#{profile_find_command} | grep -q '^#{new_resource.name}$'"
-    returns [1]
-  end
+  exists?(new_resource.base_name, new_resource.distro)
 end
