@@ -5,9 +5,9 @@ gem 'chef-rewind'
 gem 'coveralls', require: true
 gem 'foodcritic'
 gem 'rake'
-gem 'rspec'
-gem 'rspec-mocks'
-gem 'rubocop'
+gem 'rspec', '~> 3.5.0'
+gem 'rspec-mocks', '~> 3.5.0'
+gem 'rubocop', '~> 0.49.1'
 
 group :integration, :test do
   gem 'chefspec'

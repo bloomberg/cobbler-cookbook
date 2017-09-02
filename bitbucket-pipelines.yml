@@ -1,0 +1,43 @@
+# This is a sample build configuration for testing Chef cookbooks with Rubocop, the FoodCritic, and ChefSpec.
+# Only use spaces to indent your .yml configuration.
+# -----
+image: justinspies/chefdk:0.7
+
+# enable Docker for your repository
+options:
+  docker: true
+
+pipelines:
+  default:
+    - step:
+        script: # Modify the commands below to test the chef cookbook.
+          - set +e
+          - export BUILD_DIR=$(pwd) ; export BR="${CR_BRANCH:-master}"
+          - printf 'Checking out the chef-repo code from %s@%s\n' "$CR_SOURCE" "$BR"
+          - cd /chef && git archive --remote="${CR_SOURCE}" "$BR" | tar -xf -
+          - rm -rf /chef/cookbook && ln -s $BUILD_DIR /chef/cookbook
+          - cd /chef/cookbook
+          - printf 'Running RuboCop from %s...' "$(pwd)" ; rubocop ; COP_RET=$?
+          - printf 'Running FoodCritic from %s...' "$(pwd)" ; foodcritic . ; FC_RET=$?
+          - printf 'Running ChefSpec from %s...' "$(pwd)" ; chef exec rspec ; CS_RET=$?
+          - if [[ $CP_RET -ne 0 || $FC_RET -ne 0 || $CS_RET -ne 0 ]] ; then
+          -   printf 'Detected one or more failures, returning non-zero result'
+          -   exit 1
+          - fi
+  custom:
+    manual-build:
+      - step:
+          script: # Modify the commands below to test the chef cookbook.
+          - set +e
+          - export BUILD_DIR=$(pwd) ; export BR="${CR_BRANCH:-master}"
+          - printf 'Checking out the chef-repo code from %s@%s\n' "$CR_SOURCE" "$BR"
+          - cd /chef && git archive --remote="${CR_SOURCE}" "$BR" | tar -xf -
+          - rm -rf /chef/cookbook && ln -s $BUILD_DIR /chef/cookbook
+          - cd /chef/cookbook
+          - printf 'Running RuboCop from %s...' "$(pwd)" ; rubocop ; COP_RET=$?
+          - printf 'Running FoodCritic from %s...' "$(pwd)" ; foodcritic . ; FC_RET=$?
+          - printf 'Running ChefSpec from %s...' "$(pwd)" ; chef exec rspec ; CS_RET=$?
+          - if [[ $CP_RET -ne 0 || $FC_RET -ne 0 || $CS_RET -ne 0 ]] ; then
+          -   printf 'Detected one or more failures, returning non-zero result'
+          -   exit 1
+          - fi

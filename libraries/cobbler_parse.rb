@@ -8,7 +8,7 @@ module Cobbler
         'Name' => { attribute: 'base_name', type: 'string' },
         'Architecture' => { attribute: 'architecture', type: 'string' },
         # Parse as JSON
-        'TFTP Boot Files' => { attribute: 'boot_files', type: 'hash' },
+        'TFTP Boot Files' => { attribute: 'boot_files', type: 'array' },
         'Breed' => { attribute: 'os_breed', type: 'string' },
         'Comment' => { attribute: 'comment', type: 'string' },
         # Parse as JSON
@@ -62,7 +62,7 @@ module Cobbler
       PROFILE_FIELDS = {
         'Name' => { attribute: 'base_name', type: 'string' },
         # Parse as JSON
-        'TFTP Boot Files' => { attribute: 'boot_files', type: 'hash' },
+        'TFTP Boot Files' => { attribute: 'boot_files', type: 'array' },
         'Comment' => { attribute: 'comment', type: 'string' },
         'DHCP Tag' => { attribute: 'dhcp_tag', type: 'string' },
         'Distribution' => { attribute: 'distro', type: 'string' },
@@ -136,7 +136,10 @@ module Cobbler
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
       stderr = "Stderr: #{shellout.stderr.chomp}"
-      Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
+      if shellout.error?
+        Chef::Log.fatal("Cobbler execution for failed with:\n#{stderr}\n#{stdout}\n#{rc}")
+        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
+      end
 
       resource = Chef::Resource::CobblerdDistro.new(distro)
       raw_info = shellout.stdout.split("\n")
@@ -181,7 +184,10 @@ module Cobbler
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
       stderr = "Stderr: #{shellout.stderr.chomp}"
-      Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
+      if shellout.error?
+        Chef::Log.fatal("Cobbler execution failed with:\n#{stderr}\n#{stdout}\n#{rc}")
+        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
+      end
 
       resource = Chef::Resource::CobblerdImage.new(image)
       raw_info = shellout.stdout.split("\n")
@@ -226,7 +232,10 @@ module Cobbler
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
       stderr = "Stderr: #{shellout.stderr.chomp}"
-      Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
+      if shellout.error?
+        Chef::Log.fatal("Cobbler execution failed with:\n#{stderr}\n#{stdout}\n#{rc}")
+        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
+      end
 
       resource = Chef::Resource::CobblerdProfile.new(image)
       raw_info = shellout.stdout.split("\n")
@@ -270,7 +279,10 @@ module Cobbler
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
       stderr = "Stderr: #{shellout.stderr.chomp}"
-      Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
+      if shellout.error?
+        Chef::Log.fatal("Cobbler execution failed with:\n#{stderr}\n#{stdout}\n#{rc}")
+        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
+      end
 
       resource = Chef::Resource::CobblerdRepo.new(repo)
       raw_info = shellout.stdout.split("\n")
@@ -314,7 +326,10 @@ module Cobbler
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
       stderr = "Stderr: #{shellout.stderr.chomp}"
-      Chef::Application.fatal!("Cobbler failed with:\n#{stderr}\n#{stdout}\n#{rc}") if shellout.error?
+      if shellout.error?
+        Chef::Log.fatal("Cobbler execution failed with:\n#{stderr}\n#{stdout}\n#{rc}")
+        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
+      end
 
       resource = Chef::Resource::CobblerdSystem.new(system)
       raw_info = shellout.stdout.split("\n")

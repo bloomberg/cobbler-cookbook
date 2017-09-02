@@ -31,6 +31,10 @@ RSpec.configure do |config|
   end
 end
 
+# Include all our own libraries.
+Dir['libraries/*.rb'].each { |f| require File.expand_path(f) }
+
+# Run the ChefSpec coverage report when the tests are finished.
 at_exit { ChefSpec::Coverage.report! }
 
 # Cannot be part of the shared_context, otherwise Rspec throws the error
@@ -49,6 +53,7 @@ def platforms
   }
 end
 
+# Common variables to be used by multiple recipes.
 RSpec.shared_context 'recipe variables', type: :recipe do
   let(:os_versions) do
     %w(6.9 7.3.1611)

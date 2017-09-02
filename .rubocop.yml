@@ -1,13 +1,6 @@
----
-# TODO: Fix code so that this file can be removed.
-
 AllCops:
   Exclude:
     - 'Vagrantfile'
-    - 'bin/**/*'
-    - 'vendor/**/*'
-    - 'test/**/*'
-    - 'spec/**/*'
   DisplayCopNames: true
 
 AlignParameters:
@@ -19,27 +12,15 @@ Encoding:
 LineLength:
   Max: 120
 
-Metrics/AbcSize:
-  Max: 50
-
-Metrics/BlockLength:
-  Max: 50
-
-Metrics/CyclomaticComplexity:
-  Max: 15
-
-Metrics/ModuleLength:
-  Max: 500
-
-Metrics/MethodLength:
-  Max: 75
-
-Metrics/PerceivedComplexity:
-  Max: 15
-
 StringLiterals:
   Enabled: false
 
 Style/SpaceBeforeFirstArg:
   Exclude:
     - 'metadata.rb'
+
+Metrics/MethodLength:
+  Max: 35
+
+Metrics/BlockLength:
+  Max: 35
