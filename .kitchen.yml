@@ -38,5 +38,3 @@ suites:
   - name: syslinx_package
     run_list:
       - 'recipe[cobblerd::syslinux_package]'
-    excludes:
-      - centos-5.11
