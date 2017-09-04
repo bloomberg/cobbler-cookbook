@@ -18,6 +18,9 @@ default[:cobbler][:syslinux][:repo][:revision] = 'syslinux-6.03'
 default[:cobbler][:syslinux][:binary][:url] = 'https://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-6.03.tar.gz'
 default[:cobbler][:syslinux][:binary][:signature] = '250b9bd90945d361596a7a69943d0bdc5fc0c0917aa562609f8d3058a2c36b3a'
 
+# in some cases the Chef file cache is not writeable by nobody so allow overriding
+default['cobbler']['source']['dir'] = "#{Chef::Config[:file_cache_path]}/cobbler_build"
+
 # EFI signed GRUB
 default['cobbler']['grub']['uefi_signed']['url'] = 'http://archive.ubuntu.com/ubuntu/dists/trusty/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
 

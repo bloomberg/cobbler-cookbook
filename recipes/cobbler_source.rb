@@ -8,8 +8,6 @@
 build_user = 'nobody'
 build_group = 'nogroup'
 
-# in some cases the Chef file cache is not writeable by nobody so allow overriding
-node.default['cobbler']['source']['dir'] ||= "#{Chef::Config[:file_cache_path]}/cobbler_build"
 source_code_root = node['cobbler']['source']['dir']
 
 cobbler_code_location = "#{source_code_root}/cobbler"
@@ -99,12 +97,11 @@ end
     end
   end
 
-  %w{version wsgi}.each do |mod|
-    bash "a2enmod #{mod}" do
-      action :run
-      notifies :restart, 'service[apache2]', :immediate
-      not_if { ::File.exists?("/etc/apache2/mods-enabled/#{mod}.load") }
-    end
+  bash "a2enmod wsgi" do
+    code "a2enmod wsgi"
+    action :run
+    not_if { ::File.exist?("/etc/apache2/mods-enabled/wsgi.load") }
+    notifies :restart, 'service[apache2]', :immediately
   end
 
   service 'apache2' do
