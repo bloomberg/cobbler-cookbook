@@ -5,8 +5,8 @@
 # Copyright (C) 2015 Bloomberg Finance L.P.
 #
 
-build_user = 'nobody'
-build_group = 'nogroup'
+build_user = node['cobbler']['source']['build_user']
+build_group = node['cobbler']['source']['build_group']
 
 source_code_root = node['cobbler']['source']['dir']
 
@@ -56,8 +56,7 @@ bash 'ensure cobbler on correct tag' do
   group build_group
   cwd cobbler_code_location
   code "git checkout -b #{node[:cobbler][:repo][:revision]}"
-  action :nothing
-  notifies :run, 'bash[compile cobbler]', :immediately
+  not_if "git status --porcelain -b | grep -q #{node[:cobbler][:repo][:revision]}", :cwd => cobbler_code_location
 end
 
 #if node[:platform_family] == "rhel"
@@ -80,13 +79,12 @@ end
     }
     cwd cobbler_code_location
     environment 'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-    action :nothing
+    not_if { ::Dir.glob("#{source_code_root}/cobbler_*.deb").length > 0 }
   end
 
   bash 'move cobbler deb into place' do
-    code "mv #{source_code_root}/cobbler_*.deb #{cobbler_target_filepath}"
-    action :run
-    only_if { ::Dir.glob("#{source_code_root}/cobbler_*.deb").length > 0 }
+    code "cp #{source_code_root}/cobbler_*.deb #{cobbler_target_filepath}"
+    not_if { ::Dir.glob("#{cobbler_target_filepath}/cobbler_*.deb").length > 0 }
   end
 
   # Cobbler requires mod_version and mod_wsgi in its apache config. make sure

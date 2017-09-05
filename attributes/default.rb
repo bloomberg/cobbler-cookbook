@@ -29,6 +29,10 @@ default[:cobbler][:repo][:url] = 'https://github.com/cobbler/cobbler'
 # revision points to v2.6.10
 default[:cobbler][:repo][:revision] = '5bffb9e73faa5c48e167e86f04d4687576810e4e'
 
+# Cobbler build users
+default['cobbler']['source']['build_user'] = 'nobody'
+default['cobbler']['source']['build_group'] = 'nogroup'
+
 # Cobbler build location
 default[:cobbler][:bin_dir] = "#{Chef::Config[:file_cache_path]}"
 
