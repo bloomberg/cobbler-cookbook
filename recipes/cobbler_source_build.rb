@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: cobblerd
-# Recipe:: cobbler_source
+# Recipe:: cobbler_source_build
 #
 # Copyright (C) 2017 Bloomberg Finance L.P.
 #
