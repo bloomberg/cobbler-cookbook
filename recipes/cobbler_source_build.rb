@@ -47,7 +47,6 @@ git cobbler_code_location do
   repository node[:cobbler][:repo][:url]
   revision node[:cobbler][:repo][:tag]
   action :sync
-  notifies :run, 'bash[ensure cobbler on correct tag]', :immediately
   not_if { ::File.exist?(cobbler_target_filepath) }
 end
 
