@@ -14,7 +14,8 @@ platforms:
 suites:
   - name: cobbler_source_build
     run_list:
-      - 'recipe[cobblerd::cobbler_source]'
+      - 'recipe[cobblerd::cobbler_source_build]'
+      - 'recipe[cobblerd::cobbler_source_install]'
       - 'recipe[cobblerd::default]'
   - name: cobbler_package_install
     run_list:
@@ -22,7 +23,8 @@ suites:
       - 'recipe[cobblerd::default]'
   - name: cobbler_source_images
     run_list:
-      - 'recipe[cobblerd::cobbler_source]'
+      - 'recipe[cobblerd::cobbler_source_install]'
+      - 'recipe[cobblerd::cobbler_source_build]'
       - 'recipe[cobblerd::default]'
       - 'recipe[cobblerd::centos]'
       - 'recipe[cobblerd::ubuntu]'
