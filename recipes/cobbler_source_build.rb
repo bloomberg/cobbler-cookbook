@@ -45,18 +45,10 @@ end
 git cobbler_code_location do
   user build_user
   repository node[:cobbler][:repo][:url]
-  revision node[:cobbler][:repo][:revision]
+  revision node[:cobbler][:repo][:tag]
   action :sync
   notifies :run, 'bash[ensure cobbler on correct tag]', :immediately
   not_if { ::File.exist?(cobbler_target_filepath) }
-end
-
-bash 'ensure cobbler on correct tag' do
-  user build_user
-  group build_group
-  cwd cobbler_code_location
-  code "git checkout -b #{node[:cobbler][:repo][:revision]}"
-  not_if "git status --porcelain -b | grep -q #{node[:cobbler][:repo][:revision]}", :cwd => cobbler_code_location
 end
 
 #if node[:platform_family] == "rhel"

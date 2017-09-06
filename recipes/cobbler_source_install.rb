@@ -25,10 +25,17 @@ service 'apache2' do
 end
 
 # install cobbler
-cobbler_verify_cmd = 'dpkg-query -W -f=\'${Status}\' cobbler | grep -q \'^install ok installed$\''
-bash 'install cobbler' do
-  code "dpkg -i #{cobbler_target_filepath} || apt-get install -yf && #{cobbler_verify_cmd}"
-  not_if cobbler_verify_cmd
+
+if node['cobbler']['package']['type'].downcase == 'dpkg'
+  cobbler_verify_cmd = 'dpkg-query -W -f=\'${Status}\' cobbler | grep -q \'^install ok installed$\''
+  bash 'install cobbler' do
+    code "dpkg -i #{cobbler_target_filepath} || apt-get install -yf && #{cobbler_verify_cmd}"
+    not_if cobbler_verify_cmd
+  end
+else
+  package 'cobbler' do
+    version "#{node[:cobbler][:repo][:tag].gsub('v','')}-1"
+  end
 end
 
 node.default['cobbler']['service']['name'] = 'cobblerd'

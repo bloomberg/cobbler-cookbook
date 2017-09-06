@@ -26,8 +26,9 @@ default['cobbler']['grub']['uefi_signed']['url'] = 'http://archive.ubuntu.com/ub
 
 # Cobbler git repo and revision
 default[:cobbler][:repo][:url] = 'https://github.com/cobbler/cobbler'
-# revision points to v2.6.10
-default[:cobbler][:repo][:revision] = '5bffb9e73faa5c48e167e86f04d4687576810e4e'
+default[:cobbler][:repo][:tag] = 'v2.6.10'
+
+default['cobbler']['package']['type'] = 'dpkg'
 
 # Cobbler build users
 default['cobbler']['source']['build_user'] = 'nobody'
