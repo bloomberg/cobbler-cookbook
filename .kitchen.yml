@@ -13,6 +13,11 @@ platforms:
   - name: centos-7.2
 suites:
   - name: cobbler_source_build
+    attributes: {
+      cobbler: {
+        clean_up_build: false
+      }
+    }
     run_list:
       - 'recipe[cobblerd::cobbler_source_build]'
       - 'recipe[cobblerd::cobbler_source_install]'

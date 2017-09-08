@@ -21,6 +21,7 @@ default[:cobbler][:syslinux][:binary][:signature] = '250b9bd90945d361596a7a69943
 # in some cases the Chef file cache is not writeable by nobody so allow overriding
 default['cobbler']['source']['dir'] = "#{Chef::Config[:file_cache_path]}/cobbler_build"
 
+
 # EFI signed GRUB
 default['cobbler']['grub']['uefi_signed']['url'] = 'http://archive.ubuntu.com/ubuntu/dists/trusty/main/uefi/grub2-amd64/current/grubnetx64.efi.signed'
 
@@ -28,7 +29,11 @@ default['cobbler']['grub']['uefi_signed']['url'] = 'http://archive.ubuntu.com/ub
 default[:cobbler][:repo][:url] = 'https://github.com/cobbler/cobbler'
 default[:cobbler][:repo][:tag] = 'v2.6.10'
 
-default['cobbler']['package']['type'] = 'dpkg'
+# Whether to install from local package type or remote repository
+default['cobbler']['package']['type'] = 'local'
+
+# Whether to clean-up source code repository on build
+default['cobbler']['cleanup_build'] = true
 
 # Cobbler build users
 default['cobbler']['source']['build_user'] = 'nobody'
@@ -36,6 +41,11 @@ default['cobbler']['source']['build_group'] = 'nogroup'
 
 # Cobbler build location
 default[:cobbler][:bin_dir] = "#{Chef::Config[:file_cache_path]}"
+
+# Cobbler package location
+cobbler_target_filename = 'cobbler.rpm' if node['platform_family'] == "rhel"
+cobbler_target_filename = 'cobbler.deb' if node['platform_family'] == "debian"
+default['cobbler']['target']['filepath'] = ::File.join(node['cobbler']['bin_dir'], cobbler_target_filename)
 
 # $ echo 'cobbler' | mkpasswd -S LQTvGQ11AIG0k -s -m sha-512
 default[:cobblerd][:ks][:root_password] = '$6$LQTvGQ11AIG0k$TOSqMnXrQ9Y.3AP6KwRnMitmRaIeteoDKlxVbJgxXB07bK8HdzthHps8gjbIn0iYbTI1BpOVIUtqks6Ed06E7/'

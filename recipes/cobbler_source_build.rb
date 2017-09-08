@@ -11,9 +11,8 @@ build_group = node['cobbler']['source']['build_group']
 source_code_root = node['cobbler']['source']['dir']
 
 cobbler_code_location = "#{source_code_root}/cobbler"
-cobbler_target_filename = 'cobbler.rpm' if node[:platform_family] == "rhel"
-cobbler_target_filename = 'cobbler.deb' if node[:platform_family] == "debian"
-cobbler_target_filepath = "#{node[:cobbler][:bin_dir]}/#{cobbler_target_filename}"
+
+cobbler_target_filepath = node['cobbler']['target']['filepath']
 
 # cobbler build dependencies
 %w{git
@@ -44,8 +43,8 @@ end
 
 git cobbler_code_location do
   user build_user
-  repository node[:cobbler][:repo][:url]
-  revision node[:cobbler][:repo][:tag]
+  repository node['cobbler']['repo']['url']
+  revision node['cobbler']['repo']['tag']
   action :sync
   not_if { ::File.exist?(cobbler_target_filepath) }
 end
@@ -70,15 +69,15 @@ end
     }
     cwd cobbler_code_location
     environment 'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-    not_if { ::Dir.glob("#{source_code_root}/cobbler_*.deb").length > 0 }
+    not_if { ::File.exist?(cobbler_target_filepath) }
   end
 
   bash 'move cobbler deb into place' do
     code "cp #{source_code_root}/cobbler_*.deb #{cobbler_target_filepath}"
-    not_if { ::Dir.glob("#{cobbler_target_filepath}/cobbler_*.deb").length > 0 }
+    not_if { ::File.exist?(cobbler_target_filepath) }
   end
 
 bash "cleanup" do
    code "rm -rf #{cobbler_code_location}"
-   only_if { ::File.exist?(cobbler_code_location) }
+   only_if node['cobbler']['clean_up_build']
 end
