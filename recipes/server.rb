@@ -35,8 +35,13 @@ template '/etc/cobbler/users.conf' do
   mode 0o0664
 end
 
-service 'cobblerd' do
+service 'cobbler' do
+  case node['platform']
+  when 'centos', 'redhat', 'fedora', 'oracle'
+    service_name 'cobblerd' if node['platform_version'].to_i >= 6
+  end
   action [:enable, :start]
+  supports restart: true
 end
 
 ruby_block 'Write /etc/cobbler/users.digest' do

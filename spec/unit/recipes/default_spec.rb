@@ -8,7 +8,7 @@ require 'spec_helper'
 
 describe 'cobblerd::default' do
   let(:recipes) do
-    %w[psmc_core::selinux psmc_core::repos psmc_cobbler::server psmc_cobbler::nginx psmc_cobbler::uwsgi]
+    %w[cobblerd::repos cobblerd::server cobblerd::nginx cobblerd:uwsgi]
   end
 
   platforms.each do |platform, details|
@@ -25,6 +25,11 @@ describe 'cobblerd::default' do
           runner = ChefSpec::SoloRunner.new(platform: platform, version: version)
           runner.node.override['environment'] = 'dev'
           runner.converge(described_recipe)
+        end
+
+        it 'should define the cobbler-sync command' do
+          resource = chef_run.bash('cobbler-sync')
+          expect(resource).to do_nothing
         end
 
         it 'should require the other recipes' do
