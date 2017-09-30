@@ -14,7 +14,7 @@ default_action :create if defined?(default_action)
 # os_breed - will not update if changed after creation
 # initrd - will not update if changed after creation w/o checksum
 # kernel - will not update if changed after creation w/o checksum
-attribute :base_name, name_attribute: true, kind_of: String, required: true, default: nil
+attribute :base_name, name_attribute: true, kind_of: String, required: true
 attribute :architecture, kind_of: String, required: true, default: 'x86_64'
 attribute :comment, kind_of: String, required: false, default: nil
 attribute :owners, kind_of: Array, required: true, default: ['admin']

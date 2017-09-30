@@ -1,0 +1,16 @@
+[uwsgi]
+wsgi-file = /usr/share/cobbler/web/cobbler.wsgi
+
+master = true
+processes = 2
+max-requests = 5000
+plugins = python
+
+socket = /run/cobbler_web.sock
+chmod-socket = 660
+chown-socket = <%= node['nginx']['user'] %>:<%= node['nginx']['group'] %>
+uid = <%= node['nginx']['user'] %>
+gid = <%= node['nginx']['group'] %>
+vacuum = true
+
+die-on-term = true

@@ -15,7 +15,7 @@ LineLength:
 StringLiterals:
   Enabled: false
 
-Style/SpaceBeforeFirstArg:
+Layout/SpaceBeforeFirstArg:
   Exclude:
     - 'metadata.rb'
 

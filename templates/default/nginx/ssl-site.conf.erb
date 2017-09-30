@@ -1,0 +1,53 @@
+server {
+    # NOTE: remove 'http2' if using nginx < 1.9
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name <%= node['cobblerd']['http']['server_name'] %>;
+
+    ssl on;
+    ssl_certificate <%= node['cobblerd']['http']['ssl_certificate_file'] %>;
+    ssl_certificate_key <%= node['cobblerd']['http']['ssl_certificate_key_file'] %>;
+
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+    ssl_buffer_size 8k;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+
+    # NOTE: remove or adjust this line as needed,
+    # if you're using custom DH params
+    # (more info: https://weakdh.org/sysadmin.html)
+    ssl_dhparam <%= node['cobblerd']['http']['dhparams_file'] %>;
+
+    access_log /var/log/nginx/cobbler.access.log;
+    error_log  /var/log/nginx/cobbler.error.log;
+
+    location /cobbler_webui_content {
+        alias /var/www/cobbler_webui_content;
+    }
+
+    location ~ ^/cblr(?!/svc/)(.*)?$ {
+        alias /var/www/cobbler/$1;
+    }
+
+    location /cblr/svc/ {
+        include uwsgi_params;
+        uwsgi_pass unix:/run/cobbler_svc.sock;
+    }
+
+    location /cobbler {
+        alias /var/www/cobbler;
+    }
+
+    location /cobbler_web {
+        rewrite ^/cobbler_web/?(.*) /$1 break;
+        include uwsgi_params;
+        uwsgi_pass unix:/run/cobbler_web.sock;
+    }
+
+    # redirect requests for / to the Web UI
+    rewrite ^/$ https://<%= node['cobblerd']['http']['server_name'] %>/cobbler_web permanent;
+}

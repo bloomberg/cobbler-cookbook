@@ -1,7 +1,7 @@
 # This is a sample build configuration for testing Chef cookbooks with Rubocop, the FoodCritic, and ChefSpec.
 # Only use spaces to indent your .yml configuration.
 # -----
-image: justinspies/chefdk:0.7
+image: justinspies/chefdk:0.9
 
 # enable Docker for your repository
 options:
@@ -25,7 +25,7 @@ pipelines:
           -   exit 1
           - fi
   custom:
-    manual-build:
+    unit-test:
       - step:
           script: # Modify the commands below to test the chef cookbook.
           - set +e

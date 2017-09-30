@@ -6,13 +6,7 @@
 #
 # All rights reserved - Do Not Redistribute
 #
-include_recipe 'cobblerd::default'
-
 # It is not automatically started.
-service 'httpd' do
-  action [:enable, :start]
-end
-
 profile = 'redhat'
 
 %w(6.8 7.1).each do |vers|

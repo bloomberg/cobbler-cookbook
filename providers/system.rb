@@ -53,7 +53,7 @@ end
 #------------------------------------------------------------
 def load_current_resource
   if exists?(@new_resource.base_name)
-    @current_resource = load_system(@new_resource.base_name)
+    @current_resource = load_system(@new_resource)
     @current_resource.exists = true
   else
     @current_resource = @new_resource.clone

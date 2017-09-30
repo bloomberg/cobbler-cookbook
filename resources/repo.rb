@@ -7,7 +7,7 @@ actions :create, :delete
 default_action :create if defined?(default_action)
 
 # Name Space, this is what is passed in "<name>".
-attribute :base_name, name_attribute: true, kind_of: String, required: true, default: nil
+attribute :base_name, name_attribute: true, kind_of: String, required: true
 attribute :owners, kind_of: Array, required: true, default: ['admin']
 # Architecture must be one of i386,x86_64,ia64,ppc,ppc64,ppc64le,s390,arm,noarch,src
 attribute :architecture, kind_of: String, required: true, default: 'x86_64'

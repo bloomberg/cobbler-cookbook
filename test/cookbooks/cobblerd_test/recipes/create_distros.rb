@@ -9,12 +9,35 @@
 profile = 'redhat'
 
 %w(6.9 7.3.1611).each do |vers|
+  # Prep some files so that Cobbler doesn't complain...
+  directory "/var/www/cobbler/images/centos-#{vers}" do
+    owner 'root'
+    group 'root'
+    mode 0o0775
+  end
+
+  directory "/var/www/cobbler/images/centos-#{vers}/isolinux" do
+    owner 'root'
+    group 'root'
+    mode 0o0775
+  end
+
+  %w[vmlinuz initrd.img].each do |file|
+    remote_file "/var/www/cobbler/images/centos-#{vers}/isolinux/#{file}" do
+      source 'file:///bin/cobbler'
+      owner 'root'
+      group 'root'
+      mode 0o0775
+    end
+  end
+  # End file Prep
+
   osver = vers.gsub(/\.[0-9].*/, '')
-  boot_file_hash = [{'$img_path/': "/var/www/cobbler/images/centos-netinstall/install.img"}]
+  boot_file_hash = [{'$img_path/': "/var/www/cobbler/images/centos-#{vers}/install.img"}]
 
   cobblerd_distro "centos-#{vers}" do
-    kernel "/var/www/cobbler/images/centos-#{vers}-netinstall/isolinux/vmlinuz"
-    initrd "/var/www/cobbler/images/centos-#{vers}-netinstall/isolinux/initrd.img"
+    kernel "/var/www/cobbler/images/centos-#{vers}/isolinux/vmlinuz"
+    initrd "/var/www/cobbler/images/centos-#{vers}/isolinux/initrd.img"
     boot_files boot_file_hash
     architecture 'x86_64'
     os_breed 'redhat'

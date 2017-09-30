@@ -1,0 +1,10 @@
+[Unit]
+Description=uWSGI instance for Cobbler Service
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+ExecStart=/sbin/uwsgi /etc/uwsgi/cobbler_svc.ini
+ExecStopPost=/usr/bin/rm /run/cobbler_svc.sock
+
+[Install]
+WantedBy=multi-user.target

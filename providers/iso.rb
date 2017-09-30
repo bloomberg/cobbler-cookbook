@@ -46,7 +46,8 @@ end
 # Override Load Current Resource
 #------------------------------------------------------------
 def load_current_resource
-  @current_resource = Chef::Resource::CobblerdIso.new(@new_resource.base_name)
+  puts @new_resource
+  @current_resource = @new_resource.clone
   @current_resource.source = @new_resource.source
   @current_resource.target = @new_resource.target
   @current_resource.checksum = @new_resource.checksum

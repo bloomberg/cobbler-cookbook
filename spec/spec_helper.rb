@@ -1,9 +1,10 @@
 require 'chefspec'
 require 'chefspec/berkshelf'
 require 'chefspec/cacher'
-require 'coveralls'
+require_relative 'platforms'
+# require 'coveralls'
 
-Coveralls.wear!
+# Coveralls.wear!
 
 RSpec.configure do |config|
   config.color = true
@@ -37,22 +38,6 @@ Dir['libraries/*.rb'].each { |f| require File.expand_path(f) }
 # Run the ChefSpec coverage report when the tests are finished.
 at_exit { ChefSpec::Coverage.report! }
 
-# Cannot be part of the shared_context, otherwise Rspec throws the error
-#   `platforms` is not available on an example group (e.g. a `describe` or `context` block). It is only
-#   available from within individual examples (e.g. `it` blocks) or from constructs that run in the scope
-#   of an example (e.g. `before`, `let`, etc).
-def platforms
-  {
-    'centos' => {
-      # CentOS versions don't 100% match those from Oracle Linux
-      'versions' => ['6.8', '7.2.1511']
-    },
-    'oracle' => {
-      'versions' => ['6.8', '7.2']
-    }
-  }
-end
-
 # Common variables to be used by multiple recipes.
 RSpec.shared_context 'recipe variables', type: :recipe do
   let(:os_versions) do
@@ -60,11 +45,11 @@ RSpec.shared_context 'recipe variables', type: :recipe do
   end
 
   def kernel(vers)
-    "/var/www/cobbler/images/centos-#{vers}-netinstall/isolinux/vmlinuz"
+    "/var/www/cobbler/images/centos-#{vers}/isolinux/vmlinuz"
   end
 
   def initrd(vers)
-    "/var/www/cobbler/images/centos-#{vers}-netinstall/isolinux/initrd.img"
+    "/var/www/cobbler/images/centos-#{vers}/isolinux/initrd.img"
   end
 
   let(:boot_file_hash) do

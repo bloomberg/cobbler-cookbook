@@ -7,7 +7,7 @@ actions :create, :delete
 default_action :create if defined?(default_action)
 
 # Name Space, this is what is passed in "<name>".
-attribute :base_name, name_attribute: true, kind_of: String, required: true, default: nil
+attribute :base_name, name_attribute: true, kind_of: String, required: true
 attribute :owners, kind_of: Array, required: true, default: ['admin']
 attribute :kernel, kind_of: String, required: true, default: nil
 attribute :initrd, kind_of: String, required: true, default: nil
@@ -29,7 +29,7 @@ attribute :source_repos, kind_of: Array, required: false, default: nil
 attribute :depth, kind_of: String, required: false, default: nil
 attribute :tree_build_time, kind_of: String, required: false, default: nil
 attribute :mgmt_classes, kind_of: String, required: false, default: nil
-attribute :boot_files, kind_of: Array, required: false, default: nil
+attribute :boot_files, kind_of: Array, required: false, default: []
 attribute :fetchable_files, kind_of: Hash, required: false, default: nil
 attribute :template_files, kind_of: Hash, required: false, default: nil
 attribute :redhat_management_key, kind_of: String, required: false, default: nil

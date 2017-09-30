@@ -1,0 +1,31 @@
+server {
+    listen 80 default;
+    listen [::]:80 default;
+    server_name <%= node['cobblerd']['http']['server_name'] %> _;
+
+    location ~ ^/cblr(?!/svc/)(.*)?$ {
+        alias /var/www/cobbler/$1;
+    }
+
+    location ~ ^/cobbler_track/(.*)?$ {
+        alias /var/www/cobbler/$1;
+    }
+
+    location /cobbler {
+        alias /var/www/cobbler;
+    }
+
+    location /cblr/svc/ {
+        include uwsgi_params;
+        uwsgi_pass unix:/run/cobbler_svc.sock;
+    }
+
+    location /cobbler_api {
+        rewrite ^/cobbler_api/?(.*) /$1 break;
+        proxy_pass http://127.0.0.1:25151;
+    }
+
+    # only force-redirect the web ui
+    rewrite ^/$ https://<%= node['cobblerd']['http']['server_name'] %>/cobbler_web permanent;
+    rewrite ^/cobbler_web https://<%= node['cobblerd']['http']['server_name'] %>$request_uri? permanent;
+}

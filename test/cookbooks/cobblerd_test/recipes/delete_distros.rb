@@ -8,9 +8,11 @@
 #
 profile = 'redhat'
 
-# Delete an existing distribution
-cobblerd_distro "centos-existing" do
-  action :delete
+%w(6.9 7.3.1611).each do |vers|
+  # Delete an existing distribution
+  cobblerd_distro "centos-#{vers}" do
+    action :delete
+  end
 end
 
 # Delete a non-existant distribution

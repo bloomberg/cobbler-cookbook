@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ModuleLength
 module Cobbler
   # Parse Cobbler output
   module Parse
@@ -131,7 +132,7 @@ module Cobbler
 
     # Load the details for an existing distro from the Cobbler system
     def load_distro(distro)
-      shellout = Mixlib::ShellOut.new("cobbler distro report --name='#{distro}'")
+      shellout = Mixlib::ShellOut.new("cobbler distro report --name='#{distro.base_name}'")
       shellout.run_command
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
@@ -141,7 +142,6 @@ module Cobbler
         raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
       end
 
-      resource = Chef::Resource::CobblerdDistro.new(distro)
       raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
@@ -171,15 +171,15 @@ module Cobbler
                 else
                   (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
                 end
-        resource.send("#{field_name}=", value)
+        distro.send("#{field_name}=", value)
       end
 
-      resource
+      distro
     end
 
     # Load the details for an existing image from the Cobbler system
     def load_image(image)
-      shellout = Mixlib::ShellOut.new("cobbler image report --name='#{image}'")
+      shellout = Mixlib::ShellOut.new("cobbler image report --name='#{image.base_name}'")
       shellout.run_command
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
@@ -189,7 +189,6 @@ module Cobbler
         raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
       end
 
-      resource = Chef::Resource::CobblerdImage.new(image)
       raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
@@ -219,15 +218,15 @@ module Cobbler
                 else
                   (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
                 end
-        resource.send("#{field_name}=", value)
+        image.send("#{field_name}=", value)
       end
 
-      resource
+      image
     end
 
     # Load the details for an existing profile from the Cobbler system
     def load_profile(profile)
-      shellout = Mixlib::ShellOut.new("cobbler profile report --name='#{profile}'")
+      shellout = Mixlib::ShellOut.new("cobbler profile report --name='#{profile.base_name}'")
       shellout.run_command
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
@@ -237,7 +236,6 @@ module Cobbler
         raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
       end
 
-      resource = Chef::Resource::CobblerdProfile.new(image)
       raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
@@ -267,14 +265,14 @@ module Cobbler
                 else
                   (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
                 end
-        resource.send("#{field_name}=", value)
+        profile.send("#{field_name}=", value)
       end
 
-      resource
+      profile
     end
 
     def load_repo(repo)
-      shellout = Mixlib::ShellOut.new("cobbler repo report --name='#{repo}'")
+      shellout = Mixlib::ShellOut.new("cobbler repo report --name='#{repo.base_name}'")
       shellout.run_command
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
@@ -284,7 +282,6 @@ module Cobbler
         raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
       end
 
-      resource = Chef::Resource::CobblerdRepo.new(repo)
       raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
@@ -314,14 +311,14 @@ module Cobbler
                 else
                   (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
                 end
-        resource.send("#{field_name}=", value)
+        repo.send("#{field_name}=", value)
       end
 
-      resource
+      repo
     end
 
     def load_system(system)
-      shellout = Mixlib::ShellOut.new("cobbler system report --name='#{system}'")
+      shellout = Mixlib::ShellOut.new("cobbler system report --name='#{system.base_name}'")
       shellout.run_command
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
@@ -331,7 +328,6 @@ module Cobbler
         raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
       end
 
-      resource = Chef::Resource::CobblerdSystem.new(system)
       raw_info = shellout.stdout.split("\n")
       raw_info.each do |line_item|
         line_item.chomp!
@@ -362,10 +358,10 @@ module Cobbler
                   (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
                 end
 
-        resource.send("#{field_name}=", value)
+        system.send("#{field_name}=", value)
       end
 
-      resource
+      system
     end
 
     # Parse Cobbler distro report output

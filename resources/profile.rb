@@ -2,7 +2,7 @@ actions :create, :delete
 
 default_action :create
 
-attribute :base_name, name_attribute: true, kind_of: String, required: true, default: nil
+attribute :base_name, name_attribute: true, kind_of: String, required: true
 attribute :distro, kind_of: String, required: false, default: nil
 
 attribute :comment, kind_of: String, required: false, default: nil

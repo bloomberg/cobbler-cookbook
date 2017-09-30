@@ -51,7 +51,7 @@ end
 def load_current_resource
   if exists?(@new_resource.base_name)
     Chef::Log.debug("New resource with name #{@new_resource.base_name} already exists")
-    @current_resource = load_profile(@new_resource.base_name)
+    @current_resource = load_profile(@new_resource)
     @current_resource.exists = true
   else
     Chef::Log.debug("New resource with name #{@new_resource.base_name} does not exist")
