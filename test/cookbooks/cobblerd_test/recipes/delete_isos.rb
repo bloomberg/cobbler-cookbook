@@ -10,7 +10,7 @@
 
 # Only delete the one ISO (7.3) so that a review of the web UI allows developers to see that 6.9 was downloaded
 # and created.
-%w[7.3.1611].each do |vers|
+%w[6.9].each do |vers|
   osmajor = vers.gsub(/\.[0-9].*/, '')
 
   if osmajor == '7'

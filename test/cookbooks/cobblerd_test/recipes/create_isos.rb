@@ -18,7 +18,7 @@
   end
 
   # The distros are dependent on the ISO having been downloaded.
-  cobblerd_iso "centos-#{vers}-netinstall" do
+  cobblerd_iso "centos-#{vers}" do
     source "http://mirrors.kernel.org/centos/#{vers}/isos/x86_64/#{source_file}"
     target "/var/www/cobbler/isos/#{source_file}"
     action :import
