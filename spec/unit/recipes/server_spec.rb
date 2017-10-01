@@ -37,6 +37,12 @@ describe 'cobblerd::server' do
           expect(chef_run).to enable_service('cobblerd')
           expect(chef_run).to start_service('cobblerd')
         end
+
+        it 'should  configure cobbler users' do
+          expect(chef_run).to run_ruby_block('Write /etc/cobbler/users.digest')
+          ruby = chef_run.ruby_block('Write /etc/cobbler/users.digest')
+          expect(ruby).to notify('service[cobbler]').to(:restart).delayed
+        end
       end
     end
   end
