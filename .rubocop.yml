@@ -2,11 +2,15 @@ AllCops:
   Exclude:
     - 'Vagrantfile'
   DisplayCopNames: true
+  TargetRubyVersion: 2.4
 
 AlignParameters:
   Enabled: false
 
 Encoding:
+  Enabled: false
+
+FrozenStringLiteralComment:
   Enabled: false
 
 LineLength:

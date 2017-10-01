@@ -1,4 +1,7 @@
-source "https://api.berkshelf.com"
+# encoding: utf-8
+# frozen_string_literal: true
+
+source 'https://api.berkshelf.com'
 
 metadata
 

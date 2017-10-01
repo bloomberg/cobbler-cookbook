@@ -7,9 +7,7 @@
 # All rights reserved - Do Not Redistribute
 #
 # It is not automatically started.
-profile = 'redhat'
-
-%w(6.9 7.3.1611).each do |vers|
+%w[6.9 7.3.1611].each do |vers|
   osver = vers.gsub(/\.[0-9].*/, '')
   # The distros are dependent on the ISO having been downloaded.
   cobblerd_iso "centos-#{vers}-netinstall" do
@@ -44,8 +42,14 @@ profile = 'redhat'
     clobber true
     action :create
   end
-end
 
-cobblerd_system 'something' do
-  action :delete
+  cobblerd_system "something-to-delete-#{vers}" do
+    profile "centos-#{vers}-minimal"
+    action :create
+  end
+
+  cobblerd_system "something-to-leave-#{vers}" do
+    profile "centos-#{vers}-minimal"
+    action :create
+  end
 end

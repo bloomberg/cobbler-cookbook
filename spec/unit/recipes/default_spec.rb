@@ -1,5 +1,5 @@
 #
-# Cookbook:: psmc_cobbler
+# Cookbook:: cobblerd
 # Spec:: default
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.
@@ -8,7 +8,7 @@ require 'spec_helper'
 
 describe 'cobblerd::default' do
   let(:recipes) do
-    %w[cobblerd::repos cobblerd::server cobblerd::nginx cobblerd:uwsgi]
+    %w[cobblerd::repos cobblerd::server cobblerd::nginx cobblerd::uwsgi]
   end
 
   platforms.each do |platform, details|

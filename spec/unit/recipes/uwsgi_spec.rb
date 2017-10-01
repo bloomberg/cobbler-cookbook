@@ -1,5 +1,5 @@
 #
-# Cookbook:: psmc_cobbler
+# Cookbook:: cobblerd
 # Spec:: uwsgi
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.
@@ -30,9 +30,16 @@ describe 'cobblerd::uwsgi' do
         it 'create the uwsgi configuration files' do
           expect(chef_run).to create_directory('/etc/uwsgi')
           expect(chef_run).to create_template('/etc/uwsgi/cobbler_web.ini')
-          expect(chef_run).to create_template('/lib/systemd/system/cobbler-web.service')
           expect(chef_run).to create_template('/etc/uwsgi/cobbler_svc.ini')
-          expect(chef_run).to create_template('/lib/systemd/system/cobbler-svc.service')
+
+          %w[cobbler-web cobbler-svc].each do |svc|
+            service = chef_run.systemd_unit("#{svc}.service")
+            expect(service).to do_nothing
+            expect(chef_run).to create_template("/lib/systemd/system/#{svc}.service")
+
+            template = chef_run.template("/lib/systemd/system/#{svc}.service")
+            expect(template).to notify("systemd_unit[#{svc}.service]").to(:reload_or_restart).delayed
+          end
         end
 
         it 'should enable and start the uwsgi services' do

@@ -7,9 +7,7 @@
 # All rights reserved - Do Not Redistribute
 #
 # It is not automatically started.
-profile = 'redhat'
-
-%w(6.9 7.3.1611).each do |vers|
+%w[6.9 7.3.1611].each do |vers| # rubocop:disable Metrics/BlockLength
   # Prep some files so that Cobbler doesn't complain...
   directory "/var/www/cobbler/images/centos-#{vers}" do
     owner 'root'
@@ -42,7 +40,7 @@ profile = 'redhat'
   end
 
   # The profile is dependent on the distro.
-  boot_file_hash = [{'$img_path/': "/var/www/cobbler/images/centos-#{vers}/install.img"}]
+  boot_file_hash = [{ '$img_path/': "/var/www/cobbler/images/centos-#{vers}/install.img" }]
   cobblerd_distro "centos-#{vers}" do
     kernel "/var/www/cobbler/images/centos-#{vers}/isolinux/vmlinuz"
     initrd "/var/www/cobbler/images/centos-#{vers}/isolinux/initrd.img"

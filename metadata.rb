@@ -1,7 +1,10 @@
+# encoding: utf-8
+# frozen_string_literal: true
+
 name             'cobblerd'
 maintainer       'Compute Architecture'
 maintainer_email 'compute@bloomberg.net'
-license          'Apache 2.0'
+license          'Apache-2.0'
 description      'Installs/Configures cobblerd'
 long_description 'Installs/Configures cobblerd'
 version          '0.5.0'
@@ -33,4 +36,6 @@ end
   supports 'ubuntu', "= #{vers}"
 end
 
-chef_version '>= 12' if respond_to?(:chef_version)
+# Requires at least 12.11 (due to introduction of systemd_unit) but we make it 12.19 which includes updates
+# to systemd_unit.
+chef_version '>= 12.19' if respond_to?(:chef_version)

@@ -18,9 +18,7 @@ RSpec.configure do |config|
   Kernel.srand config.seed
   config.order = :random
 
-  if config.files_to_run.one?
-    config.default_formatter = 'doc'
-  end
+  config.default_formatter = 'doc' if config.files_to_run.one?
 
   config.expect_with :rspec do |expectations|
     expectations.syntax = :expect
@@ -41,7 +39,7 @@ at_exit { ChefSpec::Coverage.report! }
 # Common variables to be used by multiple recipes.
 RSpec.shared_context 'recipe variables', type: :recipe do
   let(:os_versions) do
-    %w(6.9 7.3.1611)
+    %w[6.9 7.3.1611]
   end
 
   def kernel(vers)
@@ -53,7 +51,7 @@ RSpec.shared_context 'recipe variables', type: :recipe do
   end
 
   let(:boot_file_hash) do
-    [{'$img_path/': "/var/www/cobbler/images/centos-netinstall/install.img"}]
+    [{ '$img_path/': "/var/www/cobbler/images/centos-netinstall/install.img" }]
   end
 
   let(:arch) do
@@ -68,9 +66,9 @@ RSpec.shared_context 'recipe variables', type: :recipe do
   end
 
   let(:boot_files) do
-    ret = Array.new
+    ret = []
     boot_file_hash.each do |ent|
-      ent.each_pair do |k,v|
+      ent.each_pair do |k, v|
         ret << "'#{k}'='#{v}'"
       end
     end

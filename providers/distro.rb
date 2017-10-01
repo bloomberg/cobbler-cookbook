@@ -70,14 +70,14 @@ end
 # TODO: Move the list of architectures and breeds to a helper method so they are globally accessible.
 #------------------------------------------------------------
 def architectures
-  %w(i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src)
+  %w[i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src]
 end
 
 #------------------------------------------------------------
 # Defines the allowable breed, used for input validation.
 #------------------------------------------------------------
 def breeds
-  %w(suse redhat windows xen generic unix freebsd ubuntu nexenta debian vmware)
+  %w[suse redhat windows xen generic unix freebsd ubuntu nexenta debian vmware]
 end
 
 #------------------------------------------------------------
@@ -124,7 +124,7 @@ end
 #------------------------------------------------------------
 # Creates a new Cobbler distro if a distro with the same name does not already exist.
 #------------------------------------------------------------
-def create
+def create # rubocop:disable Metrics/MethodLength
   unless architectures.include?(@new_resource.architecture)
     raise "The specified architecture (#{@new_resource.architecture}) is not one of #{architectures.join(',')}"
   end
@@ -252,5 +252,5 @@ def dependencies?
   # True if the value in stdout matches our distro_name
   result = find.stdout.chomp.to_i
 
-  (result > 0)
+  result.positive?
 end

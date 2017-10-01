@@ -130,195 +130,59 @@ module Cobbler
       }.freeze
     end
 
+    def field_value(source, parts) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      case source[parts[0]][:type]
+      when 'hash'
+        # Parse as JSON
+        JSON.parse(parts[1])
+      when 'array'
+        if parts[1] == '[]'
+          nil
+        else
+          # Strip braces and parse as CSV
+          parts[1][1..-1].split(',')
+        end
+      when 'boolean'
+        if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
+          true
+        else
+          false
+        end
+      else
+        (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
+      end
+    end
+
     # Load the details for an existing distro from the Cobbler system
     def load_distro(distro)
-      shellout = Mixlib::ShellOut.new("cobbler distro report --name='#{distro.base_name}'")
-      shellout.run_command
-      rc = "Return code: #{shellout.exitstatus}"
-      stdout = "Stdout: #{shellout.stdout.chomp}"
-      stderr = "Stderr: #{shellout.stderr.chomp}"
-      if shellout.error?
-        Chef::Log.fatal("Cobbler execution for failed with:\n#{stderr}\n#{stdout}\n#{rc}")
-        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
-      end
-
-      raw_info = shellout.stdout.split("\n")
-      raw_info.each do |line_item|
-        line_item.chomp!
-        parts = line_item.split(':')
-        parts[0].strip!
-        parts[1].strip!
-
-        next unless DISTRO_FIELDS.key?(parts[0])
-        field_name = DISTRO_FIELDS[parts[0]][:attribute]
-        value = case DISTRO_FIELDS[parts[0]][:type]
-                when 'hash'
-                  # Parse as JSON
-                  JSON.parse(parts[1])
-                when 'array'
-                  if parts[1] == '[]'
-                    nil
-                  else
-                    # Strip braces and parse as CSV
-                    parts[1][1..-1].split(',')
-                  end
-                when 'boolean'
-                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
-                    true
-                  else
-                    false
-                  end
-                else
-                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
-                end
-        distro.send("#{field_name}=", value)
-      end
-
-      distro
+      command = "cobbler distro report --name='#{distro.base_name}'"
+      load_cobbler_object(distro, command, DISTRO_FIELDS)
     end
 
     # Load the details for an existing image from the Cobbler system
     def load_image(image)
-      shellout = Mixlib::ShellOut.new("cobbler image report --name='#{image.base_name}'")
-      shellout.run_command
-      rc = "Return code: #{shellout.exitstatus}"
-      stdout = "Stdout: #{shellout.stdout.chomp}"
-      stderr = "Stderr: #{shellout.stderr.chomp}"
-      if shellout.error?
-        Chef::Log.fatal("Cobbler execution failed with:\n#{stderr}\n#{stdout}\n#{rc}")
-        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
-      end
-
-      raw_info = shellout.stdout.split("\n")
-      raw_info.each do |line_item|
-        line_item.chomp!
-        parts = line_item.split(':')
-        parts[0].strip!
-        parts[1].strip!
-
-        next unless IMAGE_FIELDS.key?(parts[0])
-        field_name = IMAGE_FIELDS[parts[0]][:attribute]
-        value = case IMAGE_FIELDS[parts[0]][:type]
-                when 'hash'
-                  # Parse as JSON
-                  JSON.parse(parts[1])
-                when 'array'
-                  if parts[1] == '[]'
-                    nil
-                  else
-                    # Strip braces and parse as CSV
-                    parts[1][1..-1].split(',')
-                  end
-                when 'boolean'
-                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
-                    true
-                  else
-                    false
-                  end
-                else
-                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
-                end
-        image.send("#{field_name}=", value)
-      end
-
-      image
+      command = "cobbler image report --name='#{image.base_name}'"
+      load_cobbler_object(image, command, IMAGE_FIELDS)
     end
 
     # Load the details for an existing profile from the Cobbler system
     def load_profile(profile)
-      shellout = Mixlib::ShellOut.new("cobbler profile report --name='#{profile.base_name}'")
-      shellout.run_command
-      rc = "Return code: #{shellout.exitstatus}"
-      stdout = "Stdout: #{shellout.stdout.chomp}"
-      stderr = "Stderr: #{shellout.stderr.chomp}"
-      if shellout.error?
-        Chef::Log.fatal("Cobbler execution failed with:\n#{stderr}\n#{stdout}\n#{rc}")
-        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
-      end
-
-      raw_info = shellout.stdout.split("\n")
-      raw_info.each do |line_item|
-        line_item.chomp!
-        parts = line_item.split(':')
-        parts[0].strip!
-        parts[1].strip!
-
-        next unless PROFILE_FIELDS.key?(parts[0])
-        field_name = PROFILE_FIELDS[parts[0]][:attribute]
-        value = case PROFILE_FIELDS[parts[0]][:type]
-                when 'hash'
-                  # Parse as JSON
-                  JSON.parse(parts[1])
-                when 'array'
-                  if parts[1] == '[]'
-                    nil
-                  else
-                    # Strip braces and parse as CSV
-                    parts[1][1..-1].split(',')
-                  end
-                when 'boolean'
-                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
-                    true
-                  else
-                    false
-                  end
-                else
-                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
-                end
-        profile.send("#{field_name}=", value)
-      end
-
-      profile
+      command = "cobbler profile report --name='#{profile.base_name}'"
+      load_cobbler_object(profile, command, PROFILE_FIELDS)
     end
 
     def load_repo(repo)
-      shellout = Mixlib::ShellOut.new("cobbler repo report --name='#{repo.base_name}'")
-      shellout.run_command
-      rc = "Return code: #{shellout.exitstatus}"
-      stdout = "Stdout: #{shellout.stdout.chomp}"
-      stderr = "Stderr: #{shellout.stderr.chomp}"
-      if shellout.error?
-        Chef::Log.fatal("Cobbler execution failed with:\n#{stderr}\n#{stdout}\n#{rc}")
-        raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
-      end
-
-      raw_info = shellout.stdout.split("\n")
-      raw_info.each do |line_item|
-        line_item.chomp!
-        parts = line_item.split(':')
-        parts[0].strip!
-        parts[1].strip!
-
-        next unless REPOSITORY_FIELDS.key?(parts[0])
-        field_name = REPOSITORY_FIELDS[parts[0]][:attribute]
-        value = case REPOSITORY_FIELDS[parts[0]][:type]
-                when 'hash'
-                  # Parse as JSON
-                  JSON.parse(parts[1])
-                when 'array'
-                  if parts[1] == '[]'
-                    nil
-                  else
-                    # Strip braces and parse as CSV
-                    parts[1][1..-1].split(',')
-                  end
-                when 'boolean'
-                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
-                    true
-                  else
-                    false
-                  end
-                else
-                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
-                end
-        repo.send("#{field_name}=", value)
-      end
-
-      repo
+      command = "cobbler repo report --name='#{repo.base_name}'"
+      load_cobbler_object(repo, command, REPOSITORY_FIELDS)
     end
 
     def load_system(system)
-      shellout = Mixlib::ShellOut.new("cobbler system report --name='#{system.base_name}'")
+      command = "cobbler system report --name='#{system.base_name}'"
+      load_cobbler_object(system, command, SYSTEM_FIELDS)
+    end
+
+    def load_cobbler_object(object, command, fields) # rubocop:disable Metrics/AbcSize
+      shellout = Mixlib::ShellOut.new(command)
       shellout.run_command
       rc = "Return code: #{shellout.exitstatus}"
       stdout = "Stdout: #{shellout.stdout.chomp}"
@@ -335,40 +199,20 @@ module Cobbler
         parts[0].strip!
         parts[1].strip!
 
-        next unless SYSTEM_FIELDS.key?(parts[0])
-        field_name = SYSTEM_FIELDS[parts[0]][:attribute]
-        value = case SYSTEM_FIELDS[parts[0]][:type]
-                when 'hash'
-                  # Parse as JSON
-                  JSON.parse(parts[1])
-                when 'array'
-                  if parts[1] == '[]'
-                    nil
-                  else
-                    # Strip braces and parse as CSV
-                    parts[1][1..-1].split(',')
-                  end
-                when 'boolean'
-                  if parts[1] == '1' || parts[1] == 'true' || parts[1] == 'True'
-                    true
-                  else
-                    false
-                  end
-                else
-                  (parts[1] == '<<inherit>>' ? '' : parts[1].chomp)
-                end
-
-        system.send("#{field_name}=", value)
+        next unless fields.key?(parts[0])
+        field_name = fields[parts[0]][:attribute]
+        value = field_value(fields, parts)
+        object.send("#{field_name}=", value)
       end
 
-      system
+      object
     end
 
     # Parse Cobbler distro report output
     # Params:
     # +distro+:: the cobbler distro to get data for
     # +field+:: the field to return
-    def cobbler_distro(distro, field)
+    def cobbler_distro(distro, field) # rubocop:disable Metrics/AbcSize
       # Arguments: distro --
       #            field --
       # Acquire Cobbler output like:

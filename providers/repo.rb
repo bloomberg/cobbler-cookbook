@@ -13,7 +13,7 @@ use_inline_resources
 action :create do
   # Only create if it does not exist.
   if @current_resource.exists
-    Chef::Log.error "A repository named #{@current_resource.name} already exists. Not creating."
+    Chef::Log.warn "A repository named #{@current_resource.name} already exists. Not creating."
     # Use this to raise exceptions that stop a chef run.
     # raise "Our file already exists."
   else
@@ -67,14 +67,14 @@ end
 # TODO: Move the list of architectures and breeds to a helper method so they are globally accessible.
 #------------------------------------------------------------
 def architectures
-  %w(i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src)
+  %w[i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src]
 end
 
 #------------------------------------------------------------
 # Defines the allowable breed for the repository type, used for input validation.
 #------------------------------------------------------------
 def breeds
-  %w(rsync yum apt rhn wget)
+  %w[rsync yum apt rhn wget]
 end
 
 #------------------------------------------------------------
@@ -97,7 +97,7 @@ end
 #------------------------------------------------------------
 # Creates a new Cobbler repository if a repository with the same name does not already exist.
 #------------------------------------------------------------
-def create
+def create # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
   unless architectures.include?(@new_resource.architecture)
     raise "The specified architecture (#{@new_resource.architecture}) is not one of #{architectures.join(',')}"
   end

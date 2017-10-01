@@ -7,14 +7,11 @@
 # All rights reserved - Do Not Redistribute
 #
 # It is not automatically started.
-profile = 'redhat'
-
-%w(6.8 7.1).each do |vers|
-  osver = vers.gsub(/\.[0-9]/, '')
+%w[6.9 7.3.1611].each do |vers|
   cobblerd_image "image-oul-#{vers}" do
     os_version 'rhel7'
     architecture 'x86_64'
     os_breed 'redhat'
-    action :delete
+    action :create
   end
 end

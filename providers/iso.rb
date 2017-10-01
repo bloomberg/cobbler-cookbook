@@ -11,7 +11,7 @@ use_inline_resources
 # Create Action
 action :import do
   if @current_resource.exists # Only create if it does not exist.
-    Chef::Log.error "A repository named #{@current_resource.name} already exists. Not importing."
+    Chef::Log.warn "A repository named #{@current_resource.name} already exists. Not importing."
     # Use this to raise exceptions that stop a chef run.
     # raise "Our file already exists."
   else
@@ -70,7 +70,8 @@ def import
 
   # create the remote_file to allow :delete to be called on it
   # but only :create if this is a new distribution
-  remote_file new_resource.target do
+  remote_file "#{new_resource.target}-iso-import" do
+    path new_resource.target
     source new_resource.source
     mode 0o0444
     backup false
@@ -80,7 +81,7 @@ def import
   end
 
   # Mount the image and then cobbler import the image
-  directory "#{new_resource.base_name}-iso-mount_point" do
+  directory "#{new_resource.base_name}-iso-mount-point" do
     path "/var/www/cobbler/images/#{new_resource.base_name}"
     action :create
     only_if { ::File.exist? new_resource.target }
@@ -90,8 +91,8 @@ def import
     mount_point "/var/www/cobbler/images/#{new_resource.base_name}"
     device new_resource.target
     fstype 'iso9660'
-    options %w(loop ro)
-    action [:mount, :enable]
+    options %w[loop ro]
+    action [:mount, :enable] # rubocop:disable Style/SymbolArray
     only_if { ::File.exist? new_resource.target }
   end
 end
@@ -105,8 +106,8 @@ def delete
       mount_point "/var/www/cobbler/images/#{current_resource.base_name}"
       device current_resource.target
       fstype 'iso9660'
-      options %w(loop ro)
-      action [:umount, :disable]
+      options %w[loop ro]
+      action [:umount, :disable] # rubocop:disable Style/SymbolArray
       only_if { ::File.exist? current_resource.target }
       only_if "mount | grep '/var/www/cobbler/images/#{current_resource.base_name}'"
     end

@@ -1,5 +1,5 @@
 #
-# Cookbook:: psmc_cobbler
+# Cookbook:: cobblerd
 # Spec:: nginx
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.
@@ -24,7 +24,7 @@ describe 'cobblerd::nginx' do
         let(:chef_run) do
           runner = ChefSpec::SoloRunner.new(platform: platform, version: version)
           runner.node.override['environment'] = 'dev'
-          runner.node.override['psmc_cobbler']['http']['dhparams_file'] = '/etc/dhparams.pem'
+          runner.node.override['cobblerd']['http']['dhparams_file'] = '/etc/dhparams.pem'
           runner.converge(described_recipe)
         end
 

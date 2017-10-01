@@ -6,7 +6,7 @@
 #
 # define cobbler sync for actions which need it
 bash 'cobbler-sync' do
-  code 'cobbler sync'
+  code 'while [ ! -e /run/cobbler_web.sock ] ; do sleep 1 ; done ; cobbler sync'
   action :nothing
 end
 

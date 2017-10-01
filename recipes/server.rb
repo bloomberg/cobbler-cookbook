@@ -1,6 +1,6 @@
 # rubocop:disable Style/SymbolArray
 #
-# Cookbook:: psmc_cobbler
+# Cookbook:: cobblerd
 # Recipe:: nginx
 #
 # Copyright:: 2017, Specialty Manufacturing Company of South Carolina, All Rights Reserved

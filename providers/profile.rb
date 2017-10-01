@@ -10,7 +10,7 @@ use_inline_resources
 action :create do
   # Only create if it does not exist.
   if @current_resource.exists
-    Chef::Log.error "A profile named #{@new_resource.name} already exists. Not creating."
+    Chef::Log.warn "A profile named #{@new_resource.name} already exists. Not creating."
     # Use this to raise exceptions that stop a chef run.
     # raise "Our file already exists."
   else
@@ -84,7 +84,7 @@ end
 #------------------------------------------------------------
 # Builds the command to add a new profile
 #------------------------------------------------------------
-def cobbler_add_command
+def cobbler_add_command # rubocop:disable Metrics/AbcSize
   command = "cobbler profile add --name='#{@new_resource.name}'"
   command = "#{command} --distro='#{@new_resource.distro}'"
   command = "#{command} --kickstart='#{@new_resource.kickstart}'"
@@ -110,7 +110,7 @@ end
 #------------------------------------------------------------
 # Creates a new profile if it does not exist.
 #------------------------------------------------------------
-def create
+def create # rubocop:disable Metrics/AbcSize
   template "/var/lib/cobbler/kickstarts/#{new_resource.base_name}" do
     source "#{new_resource.kickstart}.erb"
     action :create
@@ -130,7 +130,7 @@ end
 #------------------------------------------------------------
 # Deletes an existing profile.
 #------------------------------------------------------------
-def delete
+def delete # rubocop:disable Metrics/AbcSize
   bash "#{new_resource.name}-cobbler-profile-delete" do
     code "cobbler profile remove --name='#{new_resource.name}'"
     notifies :run, 'bash[cobbler-sync]', :delayed

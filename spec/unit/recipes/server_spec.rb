@@ -1,5 +1,5 @@
 #
-# Cookbook:: psmc_cobbler
+# Cookbook:: cobblerd
 # Spec:: server
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.

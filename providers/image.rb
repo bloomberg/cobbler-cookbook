@@ -26,7 +26,7 @@ end
 
 action :import do
   if @current_resource.exists # Only create if it does not exist.
-    Chef::Log.error "A image named #{@current_resource.name} already exists. Not importing."
+    Chef::Log.warn "An image named #{@current_resource.name} already exists. Not importing."
     # Use this to raise exceptions that stop a chef run.
     # raise "Our file already exists."
   else
@@ -76,14 +76,14 @@ end
 # TODO: Move the list of architectures and breeds to a helper method so they are globally accessible.
 #------------------------------------------------------------
 def architectures
-  %w(i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src)
+  %w[i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src]
 end
 
 #------------------------------------------------------------
 # Defines the allowable breed for the image type, used for input validation.
 #------------------------------------------------------------
 def breeds
-  %w(suse redhat windows xen generic unix freebsd ubuntu nexenta debian vmware)
+  %w[suse redhat windows xen generic unix freebsd ubuntu nexenta debian vmware]
 end
 
 #------------------------------------------------------------
@@ -162,7 +162,7 @@ end
 #------------------------------------------------------------
 # Creates a new system image.
 #------------------------------------------------------------
-def create
+def create # rubocop:disable Metrics/CyclomaticComplexity
   validate_input
   # is_new = !exists?
   setup_image_source
@@ -199,7 +199,7 @@ end
 #------------------------------------------------------------
 # Download the image source locally and make it available under a specific directory / mount point.
 #------------------------------------------------------------
-def setup_image_source
+def setup_image_source # rubocop:disable Metrics/MethodLength
   # File needs to be fully qualified otherwise the Chef::Provider::File class is used.
   if new_resource.source.nil?
     Chef::Log.error "Image source was not specified, no image source will be setup."
@@ -215,7 +215,7 @@ def setup_image_source
 
     # create the remote_file to allow :delete to be called on it
     # but only :create if this is a new distribution
-    remote_file new_resource.target do
+    remote_file "source_image_#{new_resource.target}" do
       source new_resource.source
       mode 0o0444
       backup false
@@ -239,7 +239,7 @@ def setup_image_source
       mount_point ::File.join(Chef::Config['file_cache_path'], 'mnt')
       device new_resource.target
       fstype 'iso9660'
-      options %w(loop ro)
+      options %w[loop ro]
       action :mount
       only_if { ::File.exist? new_resource.target }
     end
@@ -249,7 +249,7 @@ end
 #------------------------------------------------------------
 # Set the kernel to be used when booting an image.
 #------------------------------------------------------------
-def cobbler_set_kernel(force_run = false)
+def cobbler_set_kernel(force_run = false) # rubocop:disable Metrics/MethodLength,Metrics/PerceivedComplexity
   # Import a specific kernel into the image
   # Arguments - force_run -- boolean as to if this should run without checking checksums
   Chef::Resource::RemoteFile.send('include', Cobbler::Parse)
@@ -314,7 +314,7 @@ end
 #------------------------------------------------------------
 # Set the initrd image used for booting an image.
 #------------------------------------------------------------
-def cobbler_set_initrd(force_run = false)
+def cobbler_set_initrd(force_run = false) # rubocop:disable Metrics/MethodLength,Metrics/PerceivedComplexity
   # Import a specific initrd into the distro
   # Arguments - force_run -- boolean as to if this should run without checking checksums
   Chef::Resource::RemoteFile.send('include', Cobbler::Parse)

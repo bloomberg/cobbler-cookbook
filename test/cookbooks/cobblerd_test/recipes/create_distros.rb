@@ -6,9 +6,7 @@
 #
 # All rights reserved - Do Not Redistribute
 #
-profile = 'redhat'
-
-%w(6.9 7.3.1611).each do |vers|
+%w[6.9 7.3.1611].each do |vers|
   # Prep some files so that Cobbler doesn't complain...
   directory "/var/www/cobbler/images/centos-#{vers}" do
     owner 'root'
@@ -32,8 +30,7 @@ profile = 'redhat'
   end
   # End file Prep
 
-  osver = vers.gsub(/\.[0-9].*/, '')
-  boot_file_hash = [{'$img_path/': "/var/www/cobbler/images/centos-#{vers}/install.img"}]
+  boot_file_hash = [{ '$img_path/': "/var/www/cobbler/images/centos-#{vers}/install.img" }]
 
   cobblerd_distro "centos-#{vers}" do
     kernel "/var/www/cobbler/images/centos-#{vers}/isolinux/vmlinuz"
