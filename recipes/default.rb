@@ -11,6 +11,7 @@ bash 'cobbler-sync' do
 end
 
 include_recipe 'cobblerd::repos'
+include_recipe 'cobblerd::nginx' if node['cobblerd']['http_service_name'] == 'nginx'
+include_recipe 'cobblerd::apache' if node['cobblerd']['http_service_name'] == 'httpd'
 include_recipe 'cobblerd::server'
-include_recipe 'cobblerd::nginx'
 include_recipe 'cobblerd::uwsgi'

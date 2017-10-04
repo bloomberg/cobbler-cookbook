@@ -3,7 +3,7 @@
 # Cookbook:: cobblerd
 # Recipe:: nginx
 #
-# Copyright:: 2017, Specialty Manufacturing Company of South Carolina, All Rights Reserved
+# Copyright:: 2017, Justin Spies, All Rights Reserved
 package 'cobbler'
 package 'cobbler-web'
 
@@ -35,15 +35,6 @@ template '/etc/cobbler/users.conf' do
   mode 0o0664
 end
 
-service 'cobbler' do
-  case node['platform']
-  when 'centos', 'redhat', 'fedora', 'oracle'
-    service_name 'cobblerd' if node['platform_version'].to_i >= 6
-  end
-  action [:enable, :start]
-  supports restart: true
-end
-
 ruby_block 'Write /etc/cobbler/users.digest' do
   block do
     require 'webrick'
@@ -54,4 +45,15 @@ ruby_block 'Write /etc/cobbler/users.digest' do
     file.flush
   end
   notifies :restart, 'service[cobbler]', :delayed
+end
+
+# Once Cobbler is running, notify Nginx to restart immediately so that calls to Nginx from the Cobbler CLI will work.
+service 'cobbler' do
+  case node['platform']
+  when 'centos', 'redhat', 'fedora', 'oracle'
+    service_name 'cobblerd' if node['platform_version'].to_i >= 6
+  end
+  action [:enable, :start]
+  supports restart: true
+  notifies :reload, 'service[nginx]', :immediately
 end

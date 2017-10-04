@@ -3,7 +3,9 @@
 # Cookbook:: cobblerd
 # Recipe:: nginx
 #
-# Copyright:: 2017, Specialty Manufacturing Company of South Carolina, All Rights Reserved
+# Copyright:: 2017, Justin Spies, All Rights Reserved
+#
+# Install and configure Nginx for use with Cobbler
 include_recipe 'nginx'
 include_recipe 'nginx::http_stub_status_module'
 include_recipe 'nginx::http_realip_module'

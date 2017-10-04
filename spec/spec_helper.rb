@@ -39,7 +39,7 @@ at_exit { ChefSpec::Coverage.report! }
 # Common variables to be used by multiple recipes.
 RSpec.shared_context 'recipe variables', type: :recipe do
   let(:os_versions) do
-    %w[6.9 7.3.1611]
+    %w[6.9 7.4.1708]
   end
 
   def kernel(vers)
