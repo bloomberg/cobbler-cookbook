@@ -10,30 +10,31 @@ actions :create, :import, :delete
 default_action :create if defined?(default_action)
 
 property :name, name_attribute: true, kind_of: String, required: true
+
 property :architecture, kind_of: String, required: true, desired_state: false, default: 'x86_64'
-property :comment, kind_of: String, required: false, desired_state: false, default: nil
-property :owners, kind_of: Array, required: true, desired_state: false, default: ['admin']
-property :ctime, kind_of: String, required: false, desired_state: false, default: nil
-property :mtime, kind_of: String, required: false, desired_state: false, default: nil
-# This is the source for the remote image file that will be downloaded if a value is specified.
-property :source, kind_of: String, required: false, desired_state: false, default: nil
-property :checksum, kind_of: String, required: false, desired_state: false, default: nil
-property :kickstart, kind_of: String, required: false, desired_state: false, default: nil
-# This corresopnds to the --file input and can be a local file or an NFS mount
-property :target, kind_of: String, required: false, desired_state: false, default: nil
-# Must be one of iso,direct,memdisk,virt-image
-property :image_type, kind_of: String, required: false, desired_state: false, default: 'iso'
-property :os_version, kind_of: String, required: false, desired_state: false, default: nil
-property :os_breed, kind_of: String, required: false, desired_state: false, default: nil
-# Number of NICs, corresponds to the --network-count input
-property :network_count, kind_of: String, required: false, desired_state: false, default: '1'
 property :auto_boot, kind_of: [TrueClass, FalseClass], required: false, desired_state: false, default: nil
 property :bridge, kind_of: String, required: false, desired_state: false, default: nil
-property :cpus, kind_of: String, required: false, desired_state: false, default: nil
+property :checksum, kind_of: String, required: false, desired_state: false, default: nil
+property :comment, kind_of: String, required: false, desired_state: false, default: nil
+property :cpus, kind_of: String, required: false, desired_state: false, default: "1"
+property :ctime, kind_of: String, required: false, desired_state: false, default: nil
 property :disk_driver_type, kind_of: String, required: false, desired_state: false, default: nil
-property :disk_size, kind_of: String, required: false, desired_state: false, default: nil
 property :disk_path, kind_of: String, required: false, desired_state: false, default: nil
-property :ram, kind_of: String, required: false, desired_state: false, default: nil
+property :disk_size, kind_of: Integer, required: false, desired_state: false, default: 16
+# Must be one of iso,direct,memdisk,virt-image
+property :image_type, kind_of: String, required: false, desired_state: false, default: 'iso'
+property :kickstart, kind_of: String, required: false, desired_state: false, default: nil
+property :mtime, kind_of: String, required: false, desired_state: false, default: nil
+# Number of NICs, corresponds to the --network-count input
+property :network_count, kind_of: Integer, required: false, desired_state: false, default: 1
+property :os_breed, kind_of: String, required: false, desired_state: false, default: nil
+property :os_version, kind_of: String, required: false, desired_state: false, default: nil
+property :owners, kind_of: Array, required: true, desired_state: false, default: ['admin']
+property :ram, kind_of: Integer, required: false, desired_state: false, default: 1024
+# This is the source for the remote image file that will be downloaded if a value is specified.
+property :source, kind_of: String, required: false, desired_state: false, default: nil
+# This corresopnds to the --file input and can be a local file or an NFS mount
+property :target, kind_of: String, required: false, desired_state: false, default: nil
 property :virtualization_type, kind_of: String, required: false, desired_state: false, default: nil
 
 # This is a standard ruby accessor, use this to set flags for current state.
@@ -118,9 +119,11 @@ end
 
 # Delete Action
 action :delete do
-  if exists?(name)
+  if exists?
+    image_command = "cobbler image remove --name='#{name}'"
     bash "#{name}-cobbler-image-delete" do
-      code "cobbler image remove --name='#{name}'"
+      code image_command
+      umask 0o0002
     end
   end
 end
@@ -130,28 +133,27 @@ load_current_value do
     data = load_cobbler_image
 
     # TODO: Use the 'send' feature / function to programatically (and dynamically) do this.
-    name field_value(data, 'name')
-    architecture field_value(data, 'architecture')
-    comment field_value(data, 'comment')
-    owners field_value(data, 'owners')
-    ctime field_value(data, 'ctime')
-    mtime field_value(data, 'mtime')
-    source field_value(data, 'source')
-    checksum field_value(data, 'checksum')
-    kickstart field_value(data, 'kickstart')
-    target field_value(data, 'target')
-    image_type field_value(data, 'image_type')
-    os_version field_value(data, 'os_version')
-    os_breed field_value(data, 'os_breed')
-    network_count field_value(data, 'network_count')
-    auto_boot field_value(data, 'auto_boot')
-    bridge field_value(data, 'bridge')
-    cpus field_value(data, 'cpus')
-    disk_driver_type field_value(data, 'disk_driver_type')
-    disk_size field_value(data, 'disk_size')
-    disk_path field_value(data, 'disk_path')
-    ram field_value(data, 'ram')
-    virtualization_type field_value(data, 'virtualization_type')
+    architecture data['arch']
+    auto_boot data['virt_auto_boot'].nil? || data['virt_auto_boot'] == '0' ? false : true
+    bridge data['virt_bridge']
+    # NOTE: Checksum is not a Cobbler property; it is for use with the remote_file from the import action.
+    comment data['comment']
+    cpus data['virt_cpus'].to_s
+    ctime data['ctime'].to_s
+    disk_driver_type data['virt_disk_driver']
+    disk_path data['virt_path']
+    disk_size data['virt_file_size']
+    image_type data['image_type']
+    kickstart data['kickstart']
+    mtime data['mtime'].to_s
+    network_count data['network_count']
+    os_breed data['breed']
+    os_version data['os_version']
+    owners data['owners']
+    ram data['virt_ram']
+    source data['source']
+    target data['target']
+    virtualization_type data['virt_type']
   end
 end
 
@@ -197,91 +199,13 @@ def dependencies?
   end
 end
 
-unless defined? IMAGE_FIELDS
-  IMAGE_FIELDS = {
-    'Name' => { attribute: 'name', type: 'string' },
-    'Architecture' => { attribute: 'architecture', type: 'string' },
-    'Breed' => { attribute: 'os_breed', type: 'string' },
-    'Comment' => { attribute: 'comment', type: 'string' },
-    'File' => { attribute: 'source', type: 'string' },
-    'Image Type' => { attribute: 'image_type', type: 'string' },
-    'Kickstart' => { attribute: 'kickstart', type: 'string' },
-    'Virt NICs' => { attribute: 'network_count', type: 'string' },
-    'OS Version' => { attribute: 'os_version', type: 'string' },
-    # Strip braces and parse as CSV
-    'Owners' => { attribute: 'owners', type: 'array' },
-    'Parent' => { attribute: 'parent', type: 'string' },
-    'Virt Auto Boot' => { attribute: 'auto_boot', type: 'boolean' },
-    'Virt Bridge' => { attribute: 'bridge', type: 'string' },
-    'Virt CPUs' => { attribute: 'cpus', type: 'string' },
-    'Virt Disk Driver Type' => { attribute: 'disk_driver_type', type: 'string' },
-    'Virt File Size (GB)' => { attribute: 'disk_size', type: 'string' },
-    'Virt Path' => { attribute: 'disk_path', type: 'string' },
-    'Virt RAM (MB)' => { attribute: 'ram', type: 'string' },
-    'Virt Type' => { attribute: 'virtualization_type', type: 'string' }
-  }.freeze
-end
-
 def load_cobbler_image # rubocop:disable Metrics/AbcSize
-  command = "cobbler image report --name='#{name}'"
-  shellout = Mixlib::ShellOut.new(command)
-  shellout.run_command
-  rc = "Return code: #{shellout.exitstatus}"
-  stdout = "Stdout: #{shellout.stdout.chomp}"
-  stderr = "Stderr: #{shellout.stderr.chomp}"
-  if shellout.error?
-    Chef::Log.fatal("Cobbler execution failed with:\n#{stderr}\n#{stdout}\n#{rc}")
-    raise "Cobbler execution failed with #{stderr} (RC=#{rc})"
-  end
-
-  shellout.stdout.split("\n")
-end
-
-def field_value(input, field)
-  value = nil
-  input.each do |line_item|
-    line_item.chomp!
-    parts = line_item.split(':')
-    parts[0].strip!
-    parts[1].strip!
-
-    # Skip the line read from the Cobbler output if the field name in the line is not part of our property set.
-    next unless IMAGE_FIELDS.key?(parts[0])
-
-    # Get the attribute / property name used in our Hash constant so it can be compared to the requested 'field'; if
-    # they match, then grab the value from the output and return it.
-    next unless IMAGE_FIELDS[parts[0]][:attribute] == field
-    value = convert_field_value(IMAGE_FIELDS[parts[0]][:type], parts[1])
-  end
-
-  value
-end
-
-def convert_field_value(field_type, field_value) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-  retval = nil
-
-  case field_type
-  when 'hash'
-    # Parse as JSON
-    retval = JSON.parse(field_value)
-  when 'array'
-    if field_value == '[]'
-      retval = nil
-    else
-      # Strip braces and parse as CSV
-      retval = field_value[1..-2].split(',')
-      retval.map do |val|
-        val.gsub!(/'/, '')
-      end
-    end
-  when 'boolean'
-    if field_value == '1' || field_value == 'true' || field_value == 'True'
-      retval = true
-    else
-      retval = false
-    end
+  retval = {}
+  config_file = ::File.join('/var/lib/cobbler/config/images.d/', "#{name}.json")
+  if ::File.exist?(config_file)
+    retval = JSON.parse(::File.read(config_file))
   else
-    retval = (field_value == '<<inherit>>' ? '' : field_value.chomp)
+    Chef::Log.error("Configuration file #{config_file} needed to load the existing image does not exist")
   end
 
   retval

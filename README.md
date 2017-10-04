@@ -56,7 +56,7 @@ Include `cobblerd` in your node's `run_list`:
 }
 ```
 
-### cobbler::web
+### cobbler::apache
 
 Include `cobblerd` in your node's `run_list`:
 
@@ -68,7 +68,7 @@ Include `cobblerd` in your node's `run_list`:
 }
 ```
 
-### cobbler::centos
+### cobbler::nginx
 
 Include `cobblerd` in your node's `run_list`:
 
@@ -80,7 +80,31 @@ Include `cobblerd` in your node's `run_list`:
 }
 ```
 
-### cobbler::ubuntu
+### cobbler::repos
+
+Include `cobblerd` in your node's `run_list`:
+
+```json
+{
+  "run_list": [
+    "recipe[cobblerd::ubuntu]"
+  ]
+}
+```
+
+### cobbler::server
+
+Include `cobblerd` in your node's `run_list`:
+
+```json
+{
+  "run_list": [
+    "recipe[cobblerd::ubuntu]"
+  ]
+}
+```
+
+### cobbler::uwsgi
 
 Include `cobblerd` in your node's `run_list`:
 

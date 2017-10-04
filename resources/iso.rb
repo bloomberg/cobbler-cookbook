@@ -7,12 +7,13 @@ default_action :download if defined?(default_action)
 
 # Required for 'import', but not 'delete', so not marking as required.
 property :name, name_attribute: true, kind_of: String, required: true
-property :source, kind_of: String, required: false, desired_state: false
-property :target, kind_of: String, required: false, desired_state: false
+
+property :checksum, kind_of: String, required: false, desired_state: false, default: nil
+property :group, kind_of: String, required: false, desired_state: false, default: 'root'
 property :mode, kind_of: Integer, required: false, desired_state: false, default: 0o0664
 property :owner, kind_of: String, required: false, desired_state: false, default: 'root'
-property :group, kind_of: String, required: false, desired_state: false, default: 'root'
-property :checksum, kind_of: String, required: false, desired_state: false, default: nil
+property :source, kind_of: String, required: false, desired_state: false
+property :target, kind_of: String, required: false, desired_state: false
 
 # Create Action
 action :download do

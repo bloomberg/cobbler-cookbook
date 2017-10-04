@@ -47,7 +47,7 @@ suites:
     run_list:
       - 'recipe[cobblerd::default]'
       - 'recipe[cobblerd_test::create_objects]'
-      # - 'recipe[cobblerd_test::delete_objects]'
+      - 'recipe[cobblerd_test::delete_objects]'
     attributes:
       cobblerd:
         iso_test_hostname: <%= ENV.has_key?('COBBLER_ISO_SOURCE') ? ENV['COBBLER_ISO_SOURCE'] : '' %>

@@ -80,7 +80,7 @@ checksums.each do |vers, sha256|
     action :create
   end
 
-  boot_file_hash = [{ '$img_path/': "/var/www/cobbler/images/iso-#{vers}-x86_64/install.img" }]
+  boot_file_hash = { '$img_path/': "/var/www/cobbler/images/iso-#{vers}-x86_64/install.img" }
   cobbler_distro "distro-#{vers}-delete" do
     kernel "/var/www/cobbler/images/image-#{vers}-x86_64/vmlinuz"
     initrd "/var/www/cobbler/images/image-#{vers}-x86_64/initrd.img"

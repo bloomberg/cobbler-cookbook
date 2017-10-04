@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: cobblerd_test
+# Cookbook Name:: cobbler_test
 # Recipe:: create_distros
 #
 # Copyright 2017, Justin Spies <justin@thespies.org>
@@ -32,74 +32,66 @@ checksums.each do |vers, sha256|
   end
 
   # Delete the existing profile.
-  cobblerd_system "system-#{vers}-delete" do
+  cobbler_system "system-#{vers}-delete" do
   #  profile "centos-#{vers}-minimal"
     action :delete
   end
 
-  cobblerd_system "system-#{vers}-delete-missing" do
+  cobbler_system "system-#{vers}-delete-missing" do
   #  profile "centos-#{vers}-minimal"
     action :delete
   end
 
   # Delete the existing profile.
-  cobblerd_profile "profile-#{vers}-delete" do
+  cobbler_profile "profile-#{vers}-delete" do
     # distro "centos-#{vers}"
     # comment "Test profile for centos-#{vers}-minimal"
     action :delete
   end
 
   # Delete a non-existant profile.
-  cobblerd_profile "profile-#{vers}-delete-missing" do
+  cobbler_profile "profile-#{vers}-delete-missing" do
     # distro "centos-#{vers}"
     # comment "Test profile for centos-#{vers}-minimal"
     action :delete
   end
 
   # Delete an existing distribution
-  cobblerd_distro "distro-#{vers}-delete" do
+  cobbler_distro "distro-#{vers}-delete" do
     action :delete
   end
 
   # Delete a non-existant distribution
-  cobblerd_distro "distro-#{vers}-delete-missing" do
+  cobbler_distro "distro-#{vers}-delete-missing" do
     action :delete
   end
 
   # NOTE: Do not mirror this locally because it will take a while and require a LOT of disk space.
-  cobblerd_repo "repo-#{vers}-delete" do
+  cobbler_repo "repo-#{vers}-delete" do
     # comment "Mirror of CentOS #{vers} from kernel.org - to be deleted"
     # mirror_url "http://mirrors.kernel.org/centos/#{vers}/os/x86_64/"
     clobber true
     action :delete
   end
 
-  cobblerd_repo "repo-#{vers}-delete-missing" do
+  cobbler_repo "repo-#{vers}-delete-missing" do
     # comment "Mirror of CentOS #{vers} from kernel.org - to be deleted"
     # mirror_url "http://mirrors.kernel.org/centos/#{vers}/os/x86_64/"
     clobber true
     action :delete
   end
 
-  cobblerd_image "image-#{vers}-delete" do
+  cobbler_image "image-#{vers}-delete" do
     # os_version 'rhel7'
     # architecture 'x86_64'
     # os_breed 'redhat'
     action :delete
   end
 
-  cobblerd_image "image-#{vers}-delete-missing" do
+  cobbler_image "image-#{vers}-delete-missing" do
     # os_version 'rhel7'
     # architecture 'x86_64'
     # os_breed 'redhat'
-    action :delete
-  end
-
-  # The distros are dependent on the ISO having been downloaded.
-  cobblerd_iso "iso-#{vers}" do
-    # source "http://mirrors.kernel.org/centos/#{vers}/isos/x86_64/#{source_file}"
-    # target "/var/www/cobbler/isos/#{source_file}"
-    # checksum sha256
     action :delete
   end
 end
