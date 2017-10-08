@@ -21,7 +21,7 @@ service 'cobbler' do
 end
 
 # define cobbler sync for actions which need it
-bash 'cobbler-sync' do
+execute 'cobbler-sync' do
   command 'cobbler sync'
   action :nothing
 end
