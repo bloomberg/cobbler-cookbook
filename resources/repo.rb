@@ -164,7 +164,6 @@ end
 action_class do
   #------------------------------------------------------------
   # Defines the allowable architectures, used for input validation.
-  # TODO: Move the list of architectures and breeds to a helper method so they are globally accessible.
   #------------------------------------------------------------
   def architectures
     %w[i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src]
@@ -181,21 +180,9 @@ action_class do
   # Validates that the provided inputs do not include any reserved words or separate characters
   #------------------------------------------------------------
   def validate_input
-    # Check if any restricted words are present
-    bare_words = node['cobblerd']['repo']['reserved_words']['bare_words']
-    separators = node['cobblerd']['repo']['reserved_words']['separators']
-    arch = node['cobblerd']['repo']['reserved_words']['arch']
-    strings_caught = bare_words.select { |word| word if new_resource.name.include?(word) }
-    all_strings = separators.collect do |sep|
-      arch.collect do |a|
-        sep + a if new_resource.name.include?(sep + a)
-      end
-    end
-    strings_caught += all_strings.flatten.select { |s| s }
-
-    unless strings_caught.empty?
-      msg = "Invalid cobbler repo name #{new_resource.name} -- "
-      msg += "it would be changed by Cobbler\nContentious strings: #{strings_caught.join(', ')}"
+    unless new_resource.nil? || architectures.include?(new_resource.architecture)
+      msg = "Invalid cobbler repo architecture #{new_resource.architecture} -- "
+      msg += "must be one of #{architectures.join(',')}"
       Chef::Application.fatal!(msg)
     end
 

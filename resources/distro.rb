@@ -240,43 +240,32 @@ end
 action_class do
   #------------------------------------------------------------
   # Defines the allowable architectures, used for input validation.
-  # TODO: Move the list of architectures and breeds to a helper method so they are globally accessible.
+  #------------------------------------------------------------
+  # Defines the allowable architectures, used for input validation.
   #------------------------------------------------------------
   def architectures
     %w[i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src]
   end
 
   #------------------------------------------------------------
-  # Defines the allowable breed for the distro type, used for input validation.
+  # Defines the allowable breed for the repo type, used for input validation.
   #------------------------------------------------------------
   def breeds
-    %w[suse redhat windows xen generic unix freebsd ubuntu nexenta debian vmware]
+    %w[rsync rhn yum apt wget]
   end
 
   #------------------------------------------------------------
   # Validates that the provided inputs do not include any reserved words or separate characters
   #------------------------------------------------------------
   def validate_input
-    # Check if any restricted words are present
-    bare_words = node['cobblerd']['distro']['reserved_words']['bare_words']
-    separators = node['cobblerd']['distro']['reserved_words']['separators']
-    arch = node['cobblerd']['distro']['reserved_words']['arch']
-    strings_caught = bare_words.select { |word| word if new_resource.name.include?(word) }
-    all_strings = separators.collect do |sep|
-      arch.collect do |a|
-        sep + a if new_resource.name.include?(sep + a)
-      end
-    end
-    strings_caught += all_strings.flatten.select { |s| s }
-
-    unless strings_caught.empty?
-      msg = "Invalid cobbler distro name #{new_resource.name} -- "
-      msg += "it would be changed by Cobbler\nContentious strings: #{strings_caught.join(', ')}"
+    unless new_resource.nil? || architectures.include?(new_resource.architecture)
+      msg = "Invalid cobbler repo architecture #{new_resource.architecture} -- "
+      msg += "must be one of #{architectures.join(',')}"
       Chef::Application.fatal!(msg)
     end
 
     unless new_resource.nil? || breeds.include?(new_resource.os_breed)
-      msg = "Invalid cobbler distro breed #{new_resource.os_breed} -- "
+      msg = "Invalid cobbler repo breed #{new_resource.os_breed} -- "
       msg += "must be one of #{breeds.join(',')}"
       Chef::Application.fatal!(msg)
     end

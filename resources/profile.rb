@@ -178,14 +178,15 @@ end
 action_class do
   #------------------------------------------------------------
   # Defines the allowable architectures, used for input validation.
-  # TODO: Move the list of architectures and breeds to a helper method so they are globally accessible.
+  #------------------------------------------------------------
+  # Defines the allowable architectures, used for input validation.
   #------------------------------------------------------------
   def architectures
     %w[i386 x86_64 ia64 ppc ppc64 ppc64le s390 arm noarch src]
   end
 
   #------------------------------------------------------------
-  # Defines the allowable breed for the profile type, used for input validation.
+  # Defines the allowable breed for the repo type, used for input validation.
   #------------------------------------------------------------
   def breeds
     %w[rsync rhn yum apt wget]
@@ -195,8 +196,17 @@ action_class do
   # Validates that the provided inputs do not include any reserved words or separate characters
   #------------------------------------------------------------
   def validate_input
-    # TODO: Add validation
-    true
+    unless new_resource.nil? || architectures.include?(new_resource.architecture)
+      msg = "Invalid cobbler repo architecture #{new_resource.architecture} -- "
+      msg += "must be one of #{architectures.join(',')}"
+      Chef::Application.fatal!(msg)
+    end
+
+    unless new_resource.nil? || breeds.include?(new_resource.os_breed)
+      msg = "Invalid cobbler repo breed #{new_resource.os_breed} -- "
+      msg += "must be one of #{breeds.join(',')}"
+      Chef::Application.fatal!(msg)
+    end
   end
 
   require 'etc'
