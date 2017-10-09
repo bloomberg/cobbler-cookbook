@@ -25,7 +25,7 @@ platforms:
   - name: ubuntu-14.04
     run_list:
       - 'recipe[apt::default]'
-  - name: centos-7.2
+  - name: centos-7.3
   - name: oracle-7.3
     driver_config:
       box: bento/oracle-7.3
