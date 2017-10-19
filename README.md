@@ -56,9 +56,25 @@ Include `cobblerd` in your node's `run_list`:
 }
 ```
 
+This installs Cobbler on your machine
+
+### cobbler::source
+
+Include `cobblerd::source` in your node's `run_list`:
+
+```json
+{
+  "run_list": [
+    "recipe[cobblerd::default]"
+  ]
+}
+```
+
+This builds Cobbler from source code
+
 ### cobbler::web
 
-Include `cobblerd` in your node's `run_list`:
+Include `cobblerd::web` in your node's `run_list`:
 
 ```json
 {
@@ -68,9 +84,11 @@ Include `cobblerd` in your node's `run_list`:
 }
 ```
 
+This provides the Cobbler web interface
+
 ### cobbler::centos
 
-Include `cobblerd` in your node's `run_list`:
+Include `cobblerd::centos` in your node's `run_list`:
 
 ```json
 {
@@ -80,9 +98,11 @@ Include `cobblerd` in your node's `run_list`:
 }
 ```
 
+This provides a CentOS image via Cobbler
+
 ### cobbler::ubuntu
 
-Include `cobblerd` in your node's `run_list`:
+Include `cobblerd::ubuntu` in your node's `run_list`:
 
 ```json
 {
@@ -91,6 +111,8 @@ Include `cobblerd` in your node's `run_list`:
   ]
 }
 ```
+
+This provides an Ubuntu image via Cobbler
 
 ## Maintainers
 

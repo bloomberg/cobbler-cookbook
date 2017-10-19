@@ -1,5 +1,5 @@
 name             'cobblerd'
-maintainer       'Compute Architecture'
+maintainer       'Compute Architecture Group'
 maintainer_email 'compute@bloomberg.net'
 license          'Apache 2.0'
 description      'Installs/Configures cobblerd'

@@ -2,26 +2,16 @@
 # Cookbook Name:: cobblerd
 # Recipe:: default
 #
-# Copyright (C) 2014 Bloomberg Finance L.P.
+# Copyright (C) 2015 Bloomberg Finance L.P.
 #
-include_recipe 'yum-epel::default' if node[:platform_family] == "rhel"
-include_recipe 'apt::default' if node[:platform_family] == "debian"
 
-package 'cobbler'
-
-service 'cobbler' do
-  case node['platform']
-    when 'centos','redhat','fedora'
-      if node['platform_version'].to_i >= 6
-        service_name 'cobblerd'
-      end
-  end
+service node['cobbler']['service']['name'] do
   action [:enable, :start]
   supports restart: true
 end
 
 # define cobbler sync for actions which need it
 bash 'cobbler-sync' do
-  command 'cobbler sync'
+  code 'cobbler sync'
   action :nothing
 end
