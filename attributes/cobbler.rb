@@ -1,8 +1,8 @@
 node.default['cobblerd']['http']['server_name'] = 'localhost'
 node.default['cobblerd']['http']['dhparams_file'] = '/etc/nginx/dhparam.pem'
 
-node.default['cobblerd']['http']['ssl_certificate_file']     = "/etc/pki/tls/certs/#{node.default['cobblerd']['http']['server_name']}.crt"
-node.default['cobblerd']['http']['ssl_certificate_key_file'] = "/etc/pki/tls/private/#{node.default['cobblerd']['http']['server_name']}.key"
+# node.default['cobblerd']['http']['ssl_certificate_file']     = "/etc/pki/tls/certs/#{node.default['cobblerd']['http']['server_name']}.crt"
+# node.default['cobblerd']['http']['ssl_certificate_key_file'] = "/etc/pki/tls/private/#{node.default['cobblerd']['http']['server_name']}.key"
 
 node.default['cobblerd']['settings']['allow_duplicate_hostnames'] = 0
 node.default['cobblerd']['settings']['allow_duplicate_ips'] = 0

@@ -27,16 +27,18 @@ nginx_site node['cobblerd']['http']['server_name'] do
   action :enable
 end
 
-template "/etc/nginx/sites-available/#{node['cobblerd']['http']['server_name']}-ssl" do
-  source 'nginx/ssl-site.conf.erb'
-  owner node['nginx']['user']
-  group node['nginx']['group']
-  mode 0o0664
-  notifies :reload, 'service[nginx]', :delayed
-end
+unless node['cobblerd']['http']['ssl_certificate_file'].nil?
+  template "/etc/nginx/sites-available/#{node['cobblerd']['http']['server_name']}-ssl" do
+    source 'nginx/ssl-site.conf.erb'
+    owner node['nginx']['user']
+    group node['nginx']['group']
+    mode 0o0664
+    notifies :reload, 'service[nginx]', :delayed
+  end
 
-nginx_site "#{node['cobblerd']['http']['server_name']}-ssl" do
-  action :enable
+  nginx_site "#{node['cobblerd']['http']['server_name']}-ssl" do
+    action :enable
+  end
 end
 
 service 'nginx' do
