@@ -3,6 +3,9 @@ server {
     listen [::]:80 default;
     server_name <%= node['cobblerd']['http']['server_name'] %> _;
 
+    access_log /var/log/nginx/cobbler.access.log;
+    error_log  /var/log/nginx/cobbler.error.log;
+
     location ~ ^/cblr(?!/svc/)(.*)?$ {
         alias /var/www/cobbler/$1;
     }

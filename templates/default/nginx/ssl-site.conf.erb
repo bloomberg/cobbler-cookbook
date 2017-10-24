@@ -5,6 +5,9 @@ server {
 
     server_name <%= node['cobblerd']['http']['server_name'] %>;
 
+    access_log /var/log/nginx/cobbler-ssl.access.log;
+    error_log  /var/log/nginx/cobbler-ssl.error.log;
+
     ssl on;
     ssl_certificate <%= node['cobblerd']['http']['ssl_certificate_file'] %>;
     ssl_certificate_key <%= node['cobblerd']['http']['ssl_certificate_key_file'] %>;
@@ -21,9 +24,6 @@ server {
     # if you're using custom DH params
     # (more info: https://weakdh.org/sysadmin.html)
     ssl_dhparam <%= node['cobblerd']['http']['dhparams_file'] %>;
-
-    access_log /var/log/nginx/cobbler-ssl.access.log;
-    error_log  /var/log/nginx/cobbler-ssl.error.log;
 
     location /cobbler_webui_content {
         alias /var/www/cobbler_webui_content;
