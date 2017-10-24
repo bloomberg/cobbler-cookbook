@@ -22,8 +22,8 @@ server {
     # (more info: https://weakdh.org/sysadmin.html)
     ssl_dhparam <%= node['cobblerd']['http']['dhparams_file'] %>;
 
-    access_log /var/log/nginx/cobbler.access.log;
-    error_log  /var/log/nginx/cobbler.error.log;
+    access_log /var/log/nginx/cobbler-ssl.access.log;
+    error_log  /var/log/nginx/cobbler-ssl.error.log;
 
     location /cobbler_webui_content {
         alias /var/www/cobbler_webui_content;

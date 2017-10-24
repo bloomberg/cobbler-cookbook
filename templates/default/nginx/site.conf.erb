@@ -25,7 +25,22 @@ server {
         proxy_pass http://127.0.0.1:25151;
     }
 
-    # only force-redirect the web ui
+    location /cobbler_webui_content {
+        alias /var/www/cobbler_webui_content;
+    }
+
+<% if node['cobblerd']['http']['ssl_certificate_file'].nil? -%>
+    location /cobbler_web {
+        rewrite ^/cobbler_web/?(.*) /$1 break;
+        include uwsgi_params;
+        uwsgi_pass unix:/run/cobbler_web.sock;
+    }
+
+    # redirect requests for / to the Web UI
+    rewrite ^/$ http://<%= node['cobblerd']['http']['server_name'] %>/cobbler_web permanent;
+<% else -%>
+    # only force-redirect the web ui to HTTPS
     rewrite ^/$ https://<%= node['cobblerd']['http']['server_name'] %>/cobbler_web permanent;
     rewrite ^/cobbler_web https://<%= node['cobblerd']['http']['server_name'] %>$request_uri? permanent;
+<% end -%>
 }
