@@ -2,7 +2,7 @@
 # Cookbook Name:: cobblerd
 # Recipe:: apache
 #
-# Copyright (C) 2017 Justin Spies
+# Copyright:: 2017, Justin Spies, All Rights Reserved
 #
 # Install and configure Apache for use with Cobbler
 
