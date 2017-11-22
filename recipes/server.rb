@@ -1,9 +1,10 @@
 # rubocop:disable Style/SymbolArray
 #
 # Cookbook:: cobblerd
-# Recipe:: nginx
+# Recipe:: server
 #
 # Copyright:: 2017, Justin Spies, All Rights Reserved
+#
 package 'cobbler'
 package 'cobbler-web'
 

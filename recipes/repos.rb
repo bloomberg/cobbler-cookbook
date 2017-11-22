@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: cobblerd
-# Recipe:: default
+# Recipe:: repos
 #
-# Copyright (C) 2014 Bloomberg Finance L.P.
+# Copyright:: 2017, Justin Spies, All Rights Reserved
 #
 include_recipe 'yum-epel::default' if node['platform_family'] == 'rhel'
 include_recipe 'apt::default' if node['platform_family'] == 'debian'
