@@ -27,7 +27,7 @@ default['cobbler']['grub']['uefi_signed']['url'] = 'http://archive.ubuntu.com/ub
 
 # Cobbler git repo and revision
 default[:cobbler][:repo][:url] = 'https://github.com/cobbler/cobbler'
-default[:cobbler][:repo][:tag] = 'v2.6.10'
+default[:cobbler][:repo][:tag] = 'v2.8.3'
 
 # Whether to install from local package type or remote repository
 default['cobbler']['package']['type'] = 'local'
