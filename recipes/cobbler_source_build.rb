@@ -15,21 +15,24 @@ cobbler_code_location = "#{source_code_root}/cobbler"
 cobbler_target_filepath = node['cobbler']['target']['filepath']
 
 # cobbler build dependencies
-%w{git
-   gcc
-   make
-   pyflakes
-   pep8
-   python-sphinx
-   python-cheetah
-   python-yaml
-   python-nose
-   python-netaddr
-   python-simplejson
-   createrepo
-   python-urlgrabber
-   po-debconf
-   debhelper}.each do |pkg|
+build_requirements = %w{checkinstall
+                        git
+                        gcc
+                        make
+                        pyflakes
+                        pep8
+                        python-sphinx
+                        python-cheetah
+                        python-yaml
+                        python-nose
+                        python-netaddr
+                        python-simplejson
+                        createrepo
+                        python-urlgrabber
+                        po-debconf
+                        debhelper}
+
+build_requirements.each do |pkg|
   package pkg do
     action :install
   end
@@ -49,33 +52,28 @@ git cobbler_code_location do
   not_if { ::File.exist?(cobbler_target_filepath) }
 end
 
-#if node[:platform_family] == "rhel"
-#  bash 'compile cobbler' do
-#    user owner
-#    group group
-#    code %Q{make rpms &&
-#            cp cobbler-*.x86_64.rpm #{cobbler_target_filepath}
-#    }
-#    cwd cobbler_code_location
-#    action :nothing
-#  end
-#else if node[:platform_family] == "debian"
-  bash 'compile cobbler' do
-    user build_user
-    group build_group
-    code %Q{make sdist &&
-            dpkg-buildpackage -b -uc &&
-            rm ../cobbler_*.changes
-    }
-    cwd cobbler_code_location
-    environment 'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-    not_if { ::File.exist?(cobbler_target_filepath) }
-  end
+bash 'compile cobbler' do
+  user build_user
+  group build_group
+  code('make sdist && ' \
+       'rm -f ./cobbler.spec && ' \
+       'checkinstall -D -y ' \
+       '  --install=yes ' \
+       '  --fstrans=yes '\
+       "  --pkgversion=#{node[:cobbler][:repo][:tag].gsub(/^v/,'')} " \
+       '  --pkgrelease=1' \
+       "  --requires #{build_requirements.join(',')}" \
+       '  && ' \
+       'rm -f ../cobbler_*.changes')
+  cwd cobbler_code_location
+  environment 'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  not_if { ::File.exist?(cobbler_target_filepath) }
+end
 
-  bash 'move cobbler deb into place' do
-    code "cp #{source_code_root}/cobbler_*.deb #{cobbler_target_filepath}"
-    not_if { ::File.exist?(cobbler_target_filepath) }
-  end
+bash 'move cobbler deb into place' do
+  code("cp #{cobbler_code_location}/cobbler_*.deb #{cobbler_target_filepath}")
+  not_if { ::File.exist?(cobbler_target_filepath) }
+end
 
 bash "cleanup" do
    code "rm -rf #{cobbler_code_location}"
