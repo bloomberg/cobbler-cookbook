@@ -12,7 +12,6 @@ version          '0.4.0'
   supports name, '~> 7.0'
 end
 
-supports 'ubuntu', '= 12.04'
 supports 'ubuntu', '= 14.04'
 
 depends 'poise'

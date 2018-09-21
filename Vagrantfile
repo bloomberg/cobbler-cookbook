@@ -1,5 +1,5 @@
 Vagrant.configure('2') do |config|
-  config.vm.box = ENV.fetch('VAGRANT_BOX_NAME', 'opscode-ubuntu-12.04')
+  config.vm.box = ENV.fetch('VAGRANT_BOX_NAME', 'ubuntu/trusty64')
 
   config.omnibus.chef_version = :latest if Vagrant.has_plugin?('vagrant-omnibus')
   config.berkshelf.enabled = true if Vagrant.has_plugin?('vagrant-berkshelf')
