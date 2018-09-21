@@ -20,8 +20,8 @@ cobbler_image 'ubuntu-12.04-minimal' do
 end
 
 cobbler_image 'ubuntu-14.04-minimal' do
-  source 'http://archive.ubuntu.com/ubuntu/dists/trusty/main/installer-amd64/current/images/netboot/mini.iso'
-  checksum 'bc09966b54f91f62c3c41fc14b76f2baa4cce48595ce22e8c9f24ab21ac8d965'
+  source 'http://archive.ubuntu.com/ubuntu/dists/trusty-updates/main/installer-amd64/current/images/xenial-netboot/mini.iso'
+  checksum 'eefab8ae8f25584c901e6e094482baa2974e9f321fe7ea7822659edeac279609'
   os_version 'trusty'
   os_breed 'ubuntu'
 end
