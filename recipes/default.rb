@@ -13,7 +13,7 @@
   end
 end
 
-%w(/var/www/cobbler /var/lib/tftpboot).each do |dir|
+%w(/var/log/cobbler/tasks /var/www/cobbler /var/lib/tftpboot).each do |dir|
   directory dir do
     owner 'root'
     group 'root'
