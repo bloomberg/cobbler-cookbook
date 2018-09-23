@@ -5,7 +5,7 @@
 # Copyright (C) 2015 Bloomberg Finance L.P.
 #
 
-%w(loaders tasks config/distros.d config/profiles.d config/repos.d).each do |dir|
+%w(loaders tasks config/distros.d config/profiles.d config/repos.d config/systems.d).each do |dir|
   directory File.join('/var/lib/cobbler/', dir) do
     owner 'root'
     group 'root'
