@@ -37,7 +37,7 @@ RSpec.shared_context 'recipe tests', type: :recipe do
   def node_attributes
     {
       platform: 'ubuntu',
-      version: '12.04'
+      version: '14.04'
     }
   end
 end
